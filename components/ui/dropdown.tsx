@@ -73,13 +73,13 @@ const DropdownContext = React.createContext<{
 });
 
 const Dropdown = React.forwardRef<View, DropdownProps>(
-  ({ children, className, open = false, onOpenChange, ...props }, ref) => {
+  ({ children, className, open, onOpenChange, ...props }, ref) => {
     const [internalOpen, setInternalOpen] = React.useState(false);
     const [triggerRect, setTriggerRect] =
       React.useState<LayoutRectangle | null>(null);
 
     const isControlled = open !== undefined;
-    const isOpen = isControlled ? open : internalOpen;
+    const isOpen = isControlled ? open! : internalOpen;
 
     const setOpen = React.useCallback(
       (value: boolean) => {
@@ -167,7 +167,6 @@ const DropdownContent = React.forwardRef<View, DropdownContentProps>(
     const { open, setOpen, triggerRect } = React.useContext(DropdownContext);
     const fadeAnim = React.useRef(new Animated.Value(0)).current;
     const scaleAnim = React.useRef(new Animated.Value(0.95)).current;
-    const [isVisible, setIsVisible] = React.useState(open);
     const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } =
       Dimensions.get("window");
     const [contentSize, setContentSize] = React.useState({
@@ -175,14 +174,11 @@ const DropdownContent = React.forwardRef<View, DropdownContentProps>(
       height: 0,
     });
 
+    // Animate in whenever the dropdown opens
     React.useEffect(() => {
-      if (open && !isVisible) {
-        setIsVisible(true);
-      }
-    }, [open, isVisible]);
-
-    React.useEffect(() => {
-      if (isVisible) {
+      if (open) {
+        fadeAnim.setValue(0);
+        scaleAnim.setValue(0.95);
         Animated.parallel([
           Animated.timing(fadeAnim, {
             toValue: 1,
@@ -197,32 +193,14 @@ const DropdownContent = React.forwardRef<View, DropdownContentProps>(
           }),
         ]).start();
       }
-    }, [isVisible, fadeAnim, scaleAnim]);
-
-    const handleClose = React.useCallback(() => {
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 150,
-          useNativeDriver: true,
-        }),
-        Animated.timing(scaleAnim, {
-          toValue: 0.95,
-          duration: 150,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
-        setIsVisible(false);
-        setOpen(false);
-      });
-    }, [fadeAnim, scaleAnim, setOpen]);
+    }, [open]);
 
     const handleLayout = (event: LayoutChangeEvent) => {
       const { width, height } = event.nativeEvent.layout;
       setContentSize({ width, height });
     };
 
-    if (!isVisible || !triggerRect) return null;
+    if (!open || !triggerRect) return null;
 
     // Calculate position
     let left = triggerRect.x;
@@ -245,12 +223,12 @@ const DropdownContent = React.forwardRef<View, DropdownContentProps>(
 
     return (
       <Modal
-        visible={isVisible}
+        visible
         transparent
         statusBarTranslucent
         animationType="none"
       >
-        <TouchableWithoutFeedback onPress={handleClose}>
+        <TouchableWithoutFeedback onPress={() => setOpen(false)}>
           <Animated.View
             className="flex-1 bg-black/25"
             style={{ opacity: fadeAnim }}
