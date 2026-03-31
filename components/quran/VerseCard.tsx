@@ -33,13 +33,13 @@ export default function VerseCard({
     // Outer card — the only view that intentionally sets a background
     <View
       className={cn(
-        "mx-4 mb-3 rounded-2xl border border-border overflow-hidden",
+        "mx-2 mb-3 rounded-2xl border border-border overflow-hidden",
         highlighted ? "border-primary bg-primary/5" : "bg-card"
       )}
     >
       {/* ── Bookmark button ─────────────────────────────────────────────── */}
       {!isBismillah && (
-        <View className="bg-transparent flex-row items-center justify-end px-4 pt-2 pb-0">
+        <View className="bg-transparent flex-row items-center justify-end pb-0">
           <Pressable
             onPress={toggle}
             hitSlop={8}
@@ -54,11 +54,12 @@ export default function VerseCard({
       )}
 
       {/* ── Arabic text with inline ayah number ─────────────────────────── */}
-      <View className={cn("bg-transparent px-4 pb-3", isBismillah ? "pt-4" : "pt-1")}>
+      <View className={cn("bg-transparent px-1 pb-1", isBismillah ? "pt-4" : "pt-1")}>
         <Text
           style={{
+            fontFamily: "AmiriQuran",
             fontSize: fontSize + 4,
-            lineHeight: (fontSize + 4) * 2,
+            lineHeight: (fontSize + 4) * 2.2,
             textAlign: "center",
             writingDirection: "rtl",
           }}
@@ -70,12 +71,12 @@ export default function VerseCard({
 
       {/* ── Divider ─────────────────────────────────────────────────────── */}
       {(showPashto || showDari) && (
-        <View className="h-px bg-border mx-4" />
+        <View className="h-px bg-border mx-1" />
       )}
 
       {/* ── Pashto translation ──────────────────────────────────────────── */}
       {showPashto && verse.pashto ? (
-        <View className="bg-transparent px-4 py-3">
+        <View className="bg-transparent px-1 py-1">
           {lang === "both" && (
             <Text className="text-xs text-muted-foreground mb-1 font-medium">
               پښتو
@@ -94,16 +95,16 @@ export default function VerseCard({
           </Text>
         </View>
       ) : showPashto && !verse.pashto ? (
-        <View className="bg-transparent px-4 py-3">
+        <View className="bg-transparent px-1 py-1">
           <Text className="text-muted-foreground text-sm text-center italic">
             ژباړه لا اضافه نه ده شوې
           </Text>
         </View>
       ) : null}
 
-      {/* ── Dari translation ──────────────────────────────────────────────
+      {/* ── Dari translation ────────────────────────────────────────────── */}
       {showDari && verse.dari ? (
-        <View className={cn("bg-transparent px-4 py-3", showPashto && "border-t border-border")}>
+        <View className={cn("bg-transparent px-1 py-1", showPashto && "border-t border-border")}>
           {lang === "both" && (
             <Text className="text-xs text-muted-foreground mb-1 font-medium">
               دری
@@ -122,12 +123,12 @@ export default function VerseCard({
           </Text>
         </View>
       ) : showDari && !verse.dari ? (
-        <View className={cn("bg-transparent px-4 py-3", showPashto && "border-t border-border")}>
+        <View className={cn("bg-transparent px-1 py-1", showPashto && "border-t border-border")}>
           <Text className="text-muted-foreground text-sm text-center italic">
             ترجمه دری هنوز اضافه نشده
           </Text>
         </View>
-      ) : null} */}
+      ) : null}
     </View>
   );
 }

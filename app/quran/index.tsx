@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, StatusBar } from "react-native";
+import { ActivityIndicator, FlatList, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // ─── Search bar ───────────────────────────────────────────────────────────────
@@ -187,7 +187,6 @@ export default function SurahListScreen() {
   return (
     <View className="flex-1">
       <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
-        <StatusBar barStyle="dark-content" />
         <FlatList
           data={filtered}
           keyExtractor={(s) => String(s.id)}

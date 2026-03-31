@@ -20,7 +20,7 @@ expo-env.d.ts
 
 # Metro
 .metro-health-check*
-
+quran/*
 # debug
 npm-debug.*
 yarn-debug.*
@@ -38,6 +38,3 @@ yarn-error.*
 
 app-example
 
-# generated native folders
-/ios
-/android

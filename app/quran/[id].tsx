@@ -30,7 +30,7 @@ import {
   Pressable,
   ScrollView,
   Share,
-  StatusBar,
+
   StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -149,7 +149,7 @@ function BismillahBanner({ verse, lang }: { verse: Verse; lang: TranslationLang 
   return (
     <View className="mx-4 mt-4 mb-2 rounded-2xl bg-primary/5 border border-primary/20 px-4 py-4">
       <Text
-        style={{ fontSize: 24, lineHeight: 52, textAlign: "center", writingDirection: "rtl" }}
+        style={{ fontFamily: "AmiriQuran", fontSize: 24, lineHeight: 58, textAlign: "center", writingDirection: "rtl" }}
       >
         {verse.arabic}
       </Text>
@@ -283,6 +283,7 @@ export default function VerseReaderScreen() {
   }, [db, surahNumber]);
 
   const { verses, loading } = useVerses(surah?.id ?? 0);
+  const { lastRead } = useLastRead();
 
   const bismillahFromDb = verses.find((v) => v.verse_number === 0);
   const bismillah = surahNumber !== 9
@@ -292,9 +293,27 @@ export default function VerseReaderScreen() {
   const pages = chunk(numbered, VERSES_PER_PAGE);
   const totalPages = pages.length;
 
+  // Restore to saved page when verses load
   useEffect(() => {
-    if (surah) saveLastRead(surah.id, 1);
-  }, [surah]);
+    if (!surah || pages.length === 0) return;
+    // Only restore if the saved position is for this surah (not a juz read)
+    if (lastRead && lastRead.surah_id === surah.id && !lastRead.juz_number) {
+      const savedVerse = lastRead.verse_number;
+      const pageIdx = pages.findIndex((p) =>
+        p.some((v) => v.verse_number === savedVerse)
+      );
+      if (pageIdx > 0) {
+        // Use setTimeout to ensure ScrollView is mounted
+        setTimeout(() => {
+          pagerRef.current?.scrollTo({ x: SCREEN_W * pageIdx, animated: false });
+          currentPageRef.current = pageIdx;
+          setCurrentPage(pageIdx);
+        }, 100);
+      }
+    }
+    // Save current position on first open
+    saveLastRead(surah.id, pages[0]?.[0]?.verse_number ?? 1);
+  }, [surah?.id, pages.length]);
 
   const goToPage = (index: number) => {
     pagerRef.current?.scrollTo({ x: SCREEN_W * index, animated: true });
@@ -352,8 +371,6 @@ export default function VerseReaderScreen() {
   return (
     <View className="flex-1">
       <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
-        <StatusBar barStyle="dark-content" />
-
         <VerseReaderHeader surah={surah} lang={lang} onLangChange={setLang} />
 
         {/* Native paging scroll — each child is exactly one screen wide */}

@@ -9,13 +9,16 @@ import { useSQLiteContext } from "expo-sqlite";
 import { useCallback, useEffect, useState } from "react";
 import {
   Bookmark,
+  Juz,
   LastRead,
   Surah,
   Verse,
+  getAllJuz,
   getAllSurahs,
   getBookmarks,
   getLastRead,
   getVerses,
+  getVersesByJuz,
   isBookmarked,
   saveLastRead,
   searchVerses,
@@ -148,10 +151,15 @@ export function useLastRead() {
   }, [db]);
 
   const save = useCallback(
-    (surahId: number, verseNumber: number) => {
-      saveLastRead(db, surahId, verseNumber).then(() =>
-        setLastRead({ surah_id: surahId, verse_number: verseNumber })
-      );
+    (surahId: number, verseNumber: number, juzNumber: number | null = null) => {
+      saveLastRead(db, surahId, verseNumber, juzNumber).then(() => {
+        setLastRead({ surah_id: surahId, verse_number: verseNumber, juz_number: juzNumber });
+        // Also persist the route for the home screen (outside SQLite context)
+        const route = juzNumber
+          ? `/quran/juz/${juzNumber}`
+          : `/quran/${surahId}`;
+        saveSetting("lastReadRoute", route);
+      });
     },
     [db]
   );
@@ -164,6 +172,50 @@ export function useLastRead() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type TranslationLang = "pashto" | "dari" | "both" | "none";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Juz (Para) list
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function useJuzList() {
+  const db = useSQLiteContext();
+  const [juzList, setJuzList] = useState<Juz[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getAllJuz(db)
+      .then(setJuzList)
+      .finally(() => setLoading(false));
+  }, [db]);
+
+  return { juzList, loading };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Verses for one juz
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function useJuzVerses(juzNumber: number) {
+  const db = useSQLiteContext();
+  const [verses, setVerses] = useState<
+    Awaited<ReturnType<typeof getVersesByJuz>>
+  >([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (juzNumber < 1) return;
+    setLoading(true);
+    getVersesByJuz(db, juzNumber)
+      .then(setVerses)
+      .finally(() => setLoading(false));
+  }, [db, juzNumber]);
+
+  return { verses, loading };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Translation language preference (in-memory, not persisted to DB)
+// ─────────────────────────────────────────────────────────────────────────────
 
 export function useTranslationLang(initial: TranslationLang = "pashto") {
   const [lang, setLangState] = useState<TranslationLang>(initial);

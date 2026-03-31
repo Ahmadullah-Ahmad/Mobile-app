@@ -6,7 +6,7 @@ import { Suspense, useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 // ── Bump this string whenever you regenerate assets/db/quran.db ──────────────
-const DB_VERSION = "2";
+const DB_VERSION = "4"; // v4: added juz_number to last_read
 
 function Loading() {
   return (

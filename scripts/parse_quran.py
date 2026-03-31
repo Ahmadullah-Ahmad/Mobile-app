@@ -325,6 +325,17 @@ CREATE TABLE IF NOT EXISTS last_read (
     verse_number INTEGER NOT NULL DEFAULT 1,
     updated_at   TEXT    DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS juz (
+    number          INTEGER PRIMARY KEY,
+    start_surah     INTEGER NOT NULL,
+    start_verse     INTEGER NOT NULL,
+    end_surah       INTEGER NOT NULL,
+    end_verse       INTEGER NOT NULL,
+    name_arabic     TEXT NOT NULL DEFAULT '',
+    name_pashto     TEXT NOT NULL DEFAULT '',
+    name_dari       TEXT NOT NULL DEFAULT ''
+);
 """
 
 
