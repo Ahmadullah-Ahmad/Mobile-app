@@ -20,7 +20,7 @@ import { useIconColors } from "@/hooks/use-icon-colors";
 import { cn } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useSQLiteContext } from "expo-sqlite";
+import { useDb } from "@/lib/db";
 import { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
@@ -268,7 +268,7 @@ export default function VerseReaderScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const surahNumber = Number(id);
 
-  const db = useSQLiteContext();
+  const db = useDb();
   const [surah, setSurah] = useState<Surah | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const { lang, setLang } = useTranslationLang("pashto");

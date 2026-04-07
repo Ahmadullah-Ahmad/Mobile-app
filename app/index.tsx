@@ -34,10 +34,10 @@ export default function HomeScreen() {
           {lastRoute && (
             <Pressable
               onPress={() => (router.push as any)(lastRoute)}
-              className="w-full bg-primary rounded-2xl py-4 px-5 flex-row items-center justify-between active:opacity-80"
+              className="w-full bg-card rounded-2xl py-4 px-5 flex-row items-center justify-between active:opacity-80"
             >
               <View className="flex-row items-center gap-3">
-                <View className="w-10 h-10 rounded-full bg-primary-foreground/20 items-center justify-center">
+                <View className="w-10 h-10 rounded-full bg-card-foreground/20 items-center justify-center">
                   <Ionicons name="bookmark-outline" size={20} color="white" />
                 </View>
                 <View>

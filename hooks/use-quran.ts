@@ -1,11 +1,11 @@
 /**
  * React hooks for Quran data.
- * All hooks read from the shared SQLiteDatabase that is provided via
- * QuranDatabaseProvider (see app/quran/_layout.tsx).
+ * All hooks read through Drizzle (see lib/db) which wraps the shared
+ * SQLiteDatabase provided by SQLiteProvider in app/quran/_layout.tsx.
  */
 
+import { useDb } from "@/lib/db";
 import { loadSetting, saveSetting } from "@/lib/settings";
-import { useSQLiteContext } from "expo-sqlite";
 import { useCallback, useEffect, useState } from "react";
 import {
   Bookmark,
@@ -30,7 +30,7 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function useSurahs() {
-  const db = useSQLiteContext();
+  const db = useDb();
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -50,7 +50,7 @@ export function useSurahs() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function useVerses(surahId: number) {
-  const db = useSQLiteContext();
+  const db = useDb();
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -71,7 +71,7 @@ export function useVerses(surahId: number) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function useSearch() {
-  const db = useSQLiteContext();
+  const db = useDb();
   const [results, setResults] = useState<
     Awaited<ReturnType<typeof searchVerses>>
   >([]);
@@ -102,7 +102,7 @@ export function useSearch() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function useBookmark(surahId: number, verseNumber: number) {
-  const db = useSQLiteContext();
+  const db = useDb();
   const [bookmarked, setBookmarked] = useState(false);
 
   useEffect(() => {
@@ -123,7 +123,7 @@ export function useBookmark(surahId: number, verseNumber: number) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function useBookmarks() {
-  const db = useSQLiteContext();
+  const db = useDb();
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -143,7 +143,7 @@ export function useBookmarks() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function useLastRead() {
-  const db = useSQLiteContext();
+  const db = useDb();
   const [lastRead, setLastRead] = useState<LastRead | null>(null);
 
   useEffect(() => {
@@ -178,7 +178,7 @@ export type TranslationLang = "pashto" | "dari" | "both" | "none";
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function useJuzList() {
-  const db = useSQLiteContext();
+  const db = useDb();
   const [juzList, setJuzList] = useState<Juz[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -196,7 +196,7 @@ export function useJuzList() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function useJuzVerses(juzNumber: number) {
-  const db = useSQLiteContext();
+  const db = useDb();
   const [verses, setVerses] = useState<
     Awaited<ReturnType<typeof getVersesByJuz>>
   >([]);

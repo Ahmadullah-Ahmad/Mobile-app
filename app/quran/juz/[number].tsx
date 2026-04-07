@@ -13,7 +13,7 @@ import { useIconColors } from "@/hooks/use-icon-colors";
 import { cn } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useSQLiteContext } from "expo-sqlite";
+import { useDb } from "@/lib/db";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -264,7 +264,7 @@ export default function JuzReaderScreen() {
   const { number } = useLocalSearchParams<{ number: string }>();
   const juzNumber = Number(number);
 
-  const db = useSQLiteContext();
+  const db = useDb();
   const [juz, setJuz] = useState<Juz | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const { lang, setLang } = useTranslationLang("both");
