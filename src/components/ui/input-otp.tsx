@@ -9,7 +9,7 @@ interface OTPContextType {
   onFocus: (index: number) => void
   focusedIndex: number | null
   otpCodeRef: React.MutableRefObject<string[]>
-  inputRef: React.RefObject<TextInput>
+  inputRef: React.RefObject<TextInput |null>
 }
 
 const OTPContext = React.createContext<OTPContextType | undefined>(undefined)

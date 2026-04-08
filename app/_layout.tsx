@@ -7,7 +7,7 @@ import {
   initialWindowMetrics
 } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
-import { ThemeProvider, useTheme } from '@/contexts/theme-context';
+import { ThemeProvider, useTheme } from '@/theme';
 import View from '@/components/ui/view';
 import './global.css';
 

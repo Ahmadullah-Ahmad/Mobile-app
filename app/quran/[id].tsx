@@ -1,43 +1,33 @@
-import {
-  Dropdown,
-  DropdownContent,
-  DropdownItem,
-  DropdownSeparator,
-  DropdownTrigger,
-} from "@/components/ui/dropdown";
-import VerseCard from "@/components/quran/VerseCard";
-import Text from "@/components/ui/text";
-import View from "@/components/ui/view";
-import {
-  TranslationLang,
-  useLastRead,
-  useTranslationLang,
-  useVerses,
-} from "@/hooks/use-quran";
-import type { Verse } from "@/lib/quran-db";
-import { getSurah, Surah } from "@/lib/quran-db";
-import { useIconColors } from "@/hooks/use-icon-colors";
-import { cn } from "@/lib/utils";
-import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
-import { useDb } from "@/lib/db";
+import { useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
-  Dimensions,
   ActivityIndicator,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
+  Dimensions,
   Pressable,
   ScrollView,
   Share,
-
   StyleSheet,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+import Text from "@/components/ui/text";
+import View from "@/components/ui/view";
+import { useFontSize } from "@/lib/font-size";
+import { chunk, toArabicNumeral } from "@/lib/utils";
+import {
+  BismillahBanner,
+  getSurah,
+  ReaderHeader,
+  useDb,
+  useLastRead,
+  useTranslationLang,
+  useVerses,
+  type Surah,
+  type Verse,
+} from "@/UI";
 
-const VERSES_PER_PAGE = 5;
 const SCREEN_W = Dimensions.get("window").width;
 
 const BISMILLAH_FALLBACK: Verse = {
@@ -49,122 +39,6 @@ const BISMILLAH_FALLBACK: Verse = {
   dari: "به نام خداوند بخشنده مهربان",
 };
 
-function chunk<T>(arr: T[], n: number): T[][] {
-  const out: T[][] = [];
-  for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n));
-  return out;
-}
-
-// ─── Header ──────────────────────────────────────────────────────────────────
-
-const LANG_LABELS: Record<TranslationLang, string> = {
-  pashto: "پښتو",
-  dari: "دری",
-  both: "دواړه",
-  none: "عربي",
-};
-
-function VerseReaderHeader({
-  surah,
-  lang,
-  onLangChange,
-}: {
-  surah: Surah;
-  lang: TranslationLang;
-  onLangChange: (l: TranslationLang) => void;
-}) {
-  const { foreground, muted } = useIconColors();
-  const [langOpen, setLangOpen] = useState(false);
-
-  return (
-    <View className="border-b border-border">
-      <View className="flex-row items-center justify-between px-4 pt-3 pb-3">
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={8}
-          className="w-9 h-9 items-center justify-center rounded-full bg-muted"
-        >
-          <Ionicons name="chevron-back" size={22} color={foreground} />
-        </Pressable>
-
-        <View className="items-center flex-1 mx-2">
-          <Text style={{ writingDirection: "rtl" }} className="text-xl font-bold">
-            {surah.name_arabic}
-          </Text>
-          <Text
-            style={{ writingDirection: "rtl" }}
-            className="text-xs text-muted-foreground mt-0.5"
-          >
-            {surah.name_pashto} • {surah.total_verses} آیات
-          </Text>
-        </View>
-
-        <Dropdown open={langOpen} onOpenChange={setLangOpen}>
-          <DropdownTrigger>
-            <View className="flex-row items-center gap-1 bg-muted rounded-full px-3 py-1.5">
-              <Text className="text-sm font-medium">{LANG_LABELS[lang]}</Text>
-              <Ionicons name="chevron-down" size={14} color={muted} />
-            </View>
-          </DropdownTrigger>
-          <DropdownContent align="end">
-            <DropdownItem
-              icon="language-outline"
-              onSelect={() => onLangChange("pashto")}
-              shortcut={lang === "pashto" ? "✓" : undefined}
-            >
-              پښتو
-            </DropdownItem>
-            <DropdownItem
-              icon="language-outline"
-              onSelect={() => onLangChange("dari")}
-              shortcut={lang === "dari" ? "✓" : undefined}
-            >
-              دری
-            </DropdownItem>
-            <DropdownItem
-              icon="layers-outline"
-              onSelect={() => onLangChange("both")}
-              shortcut={lang === "both" ? "✓" : undefined}
-            >
-              دواړه
-            </DropdownItem>
-            <DropdownSeparator />
-            <DropdownItem
-              icon="book-outline"
-              onSelect={() => onLangChange("none")}
-              shortcut={lang === "none" ? "✓" : undefined}
-            >
-              یوازې عربي
-            </DropdownItem>
-          </DropdownContent>
-        </Dropdown>
-      </View>
-    </View>
-  );
-}
-
-// ─── Bismillah ───────────────────────────────────────────────────────────────
-
-function BismillahBanner({ verse, lang }: { verse: Verse; lang: TranslationLang }) {
-  return (
-    <View className="mx-4 mt-4 mb-2 rounded-2xl bg-primary/5 border border-primary/20 px-4 py-4">
-      <Text
-        style={{ fontFamily: "AmiriQuran", fontSize: 24, lineHeight: 58, textAlign: "center", writingDirection: "rtl" }}
-      >
-        {verse.arabic}
-      </Text>
-      {(lang === "pashto" || lang === "both") && verse.pashto ? (
-        <Text
-          style={{ fontSize: 14, lineHeight: 26, textAlign: "right", writingDirection: "rtl" }}
-          className="text-muted-foreground mt-2"
-        >
-          {verse.pashto}
-        </Text>
-      ) : null}
-    </View>
-  );
-}
-
 // ─── Book page ───────────────────────────────────────────────────────────────
 
 function BookPage({
@@ -174,90 +48,147 @@ function BookPage({
   surahNumber,
   lang,
   surahName,
+  fontSize,
+  pageIndex,
+  totalPages,
 }: {
   verses: Verse[];
   isFirstPage: boolean;
   bismillah?: Verse;
   surahNumber: number;
-  lang: TranslationLang;
+  lang: ReturnType<typeof useTranslationLang>["lang"];
   surahName: string;
+  fontSize: number;
+  pageIndex: number;
+  totalPages: number;
 }) {
-  const shareVerse = async (verse: Verse) => {
-    const msg = `${verse.arabic}\n\n${verse.pashto}\n\n— ${surahName} (${surahNumber}:${verse.verse_number})`;
-    await Share.share({ message: msg });
+  const sharePage = async () => {
+    const msg = verses
+      .map((v) => `${v.arabic} ﴿${toArabicNumeral(v.verse_number)}﴾`)
+      .join(" ");
+    await Share.share({
+      message: `${msg}\n\n— ${surahName} (${surahNumber})`,
+    });
   };
 
-  return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.pageContent}
-      style={styles.page}
-    >
-      {isFirstPage && bismillah && surahNumber !== 9 && (
-        <BismillahBanner verse={bismillah} lang={lang} />
-      )}
-      {verses.map((verse) => (
-        <Pressable key={verse.id} onLongPress={() => shareVerse(verse)}>
-          <VerseCard verse={verse} lang={lang} fontSize={18} />
-        </Pressable>
-      ))}
-    </ScrollView>
-  );
-}
+  const showPashto = lang === "pashto" || lang === "both";
+  const showDari = lang === "dari" || lang === "both";
 
-// ─── Page footer ─────────────────────────────────────────────────────────────
+  const arabicSize = fontSize + 6;
+  const transSize = fontSize - 2;
 
-function PageFooter({
-  current,
-  total,
-  onPrev,
-  onNext,
-}: {
-  current: number;
-  total: number;
-  onPrev: () => void;
-  onNext: () => void;
-}) {
-  const { foreground } = useIconColors();
-  const progress = total > 1 ? (current / (total - 1)) * 100 : 100;
+  const firstVerse = verses[0]?.verse_number;
+  const lastVerse = verses[verses.length - 1]?.verse_number;
+  const verseRange =
+    firstVerse && lastVerse
+      ? firstVerse === lastVerse
+        ? toArabicNumeral(firstVerse)
+        : `${toArabicNumeral(firstVerse)}–${toArabicNumeral(lastVerse)}`
+      : "";
 
   return (
-    <View className="flex-row items-center px-5 py-3 border-t border-border gap-3">
-      <Pressable
-        onPress={onPrev}
-        disabled={current === 0}
-        hitSlop={8}
-        className={cn(
-          "w-10 h-10 rounded-full items-center justify-center bg-muted",
-          current === 0 && "opacity-25"
-        )}
-      >
-        <Ionicons name="chevron-back" size={22} color={foreground} />
-      </Pressable>
+    <View style={styles.bookFrame}>
+      <View style={styles.bookFrameInner}>
+        {/* ── Frame header: surah name + ayah range ── */}
+        <View style={styles.bookHeader}>
+          <Text
+            style={{
+              fontFamily: "AmiriQuran",
+              fontSize: 18,
+              writingDirection: "rtl",
+            }}
+            className="text-foreground"
+          >
+            {surahName}
+          </Text>
+          <Text className="text-muted-foreground text-xs">
+            آیات {verseRange}
+          </Text>
+        </View>
+        <View style={styles.bookHeaderRule} />
 
-      <View className="flex-1 items-center gap-1">
-        <Text className="text-xs text-muted-foreground">
-          {current + 1} / {total}
-        </Text>
-        <View className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-          <View
-            className="h-full bg-primary rounded-full"
-            style={{ width: `${progress}%` }}
-          />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.pageContent}
+          style={styles.page}
+        >
+          {isFirstPage && bismillah && surahNumber !== 9 && (
+            <BismillahBanner verse={bismillah} lang={lang} />
+          )}
+
+          <Pressable onLongPress={sharePage}>
+            <View className="px-4 pt-2 pb-4">
+              {verses.map((v, i) => (
+                <View
+                  key={v.id}
+                  className={i > 0 ? "mt-3 pt-3 border-t border-border/50" : ""}
+                >
+                  <Text
+                    style={{
+                      fontFamily: "AmiriQuran",
+                      fontSize: arabicSize,
+                      lineHeight: arabicSize * 2,
+                      textAlign: "justify",
+                      writingDirection: "rtl",
+                    }}
+                    className="text-foreground"
+                  >
+                    {v.arabic}
+                    {" "}
+                    <Text style={{ color: "#16a34a" }}>
+                      ﴿{toArabicNumeral(v.verse_number)}﴾
+                    </Text>
+                  </Text>
+
+                  {showPashto && v.pashto ? (
+                    <Text
+                      style={{
+                        fontSize: transSize,
+                        lineHeight: transSize * 1.8,
+                        textAlign: "right",
+                        writingDirection: "rtl",
+                        marginTop: 4,
+                      }}
+                      className="text-muted-foreground"
+                    >
+                      {v.pashto}
+                    </Text>
+                  ) : null}
+
+                  {showDari && v.dari ? (
+                    <Text
+                      style={{
+                        fontSize: transSize,
+                        lineHeight: transSize * 1.8,
+                        textAlign: "right",
+                        writingDirection: "rtl",
+                        marginTop: 2,
+                      }}
+                      className="text-muted-foreground"
+                    >
+                      {v.dari}
+                    </Text>
+                  ) : null}
+                </View>
+              ))}
+            </View>
+          </Pressable>
+        </ScrollView>
+
+        {/* ── Page footer: page X / Y ── */}
+        <View style={styles.bookHeaderRule} />
+        <View style={styles.bookFooter}>
+          <Text className="text-muted-foreground text-xs">
+            {pageIndex + 1} / {totalPages}
+          </Text>
+          <Text
+            style={{ fontFamily: "AmiriQuran", fontSize: 14 }}
+            className="text-foreground"
+          >
+            ﴾ {toArabicNumeral(pageIndex + 1)} ﴿
+          </Text>
         </View>
       </View>
-
-      <Pressable
-        onPress={onNext}
-        disabled={current === total - 1}
-        hitSlop={8}
-        className={cn(
-          "w-10 h-10 rounded-full items-center justify-center bg-muted",
-          current === total - 1 && "opacity-25"
-        )}
-      >
-        <Ionicons name="chevron-forward" size={22} color={foreground} />
-      </Pressable>
     </View>
   );
 }
@@ -270,12 +201,11 @@ export default function VerseReaderScreen() {
 
   const db = useDb();
   const [surah, setSurah] = useState<Surah | null>(null);
-  const [currentPage, setCurrentPage] = useState(0);
-  const { lang, setLang } = useTranslationLang("pashto");
+  const { lang } = useTranslationLang("pashto");
+  const { fontSize } = useFontSize();
   const { save: saveLastRead } = useLastRead();
 
   const pagerRef = useRef<ScrollView>(null);
-  // Tracks current page inside scroll callbacks without stale closure
   const currentPageRef = useRef(0);
 
   useEffect(() => {
@@ -286,49 +216,36 @@ export default function VerseReaderScreen() {
   const { lastRead } = useLastRead();
 
   const bismillahFromDb = verses.find((v) => v.verse_number === 0);
-  const bismillah = surahNumber !== 9
-    ? (bismillahFromDb ?? BISMILLAH_FALLBACK)
-    : undefined;
+  const bismillah =
+    surahNumber !== 9 ? (bismillahFromDb ?? BISMILLAH_FALLBACK) : undefined;
   const numbered = verses.filter((v) => v.verse_number > 0);
-  const pages = chunk(numbered, VERSES_PER_PAGE);
+  // 10 ayahs per page when a translation is visible, 15 when Arabic-only.
+  const versesPerPage = lang === "none" ? 15 : 10;
+  const pages = chunk(numbered, versesPerPage);
   const totalPages = pages.length;
 
   // Restore to saved page when verses load
   useEffect(() => {
     if (!surah || pages.length === 0) return;
-    // Only restore if the saved position is for this surah (not a juz read)
     if (lastRead && lastRead.surah_id === surah.id && !lastRead.juz_number) {
       const savedVerse = lastRead.verse_number;
       const pageIdx = pages.findIndex((p) =>
         p.some((v) => v.verse_number === savedVerse)
       );
       if (pageIdx > 0) {
-        // Use setTimeout to ensure ScrollView is mounted
         setTimeout(() => {
           pagerRef.current?.scrollTo({ x: SCREEN_W * pageIdx, animated: false });
           currentPageRef.current = pageIdx;
-          setCurrentPage(pageIdx);
         }, 100);
       }
     }
-    // Save current position on first open
     saveLastRead(surah.id, pages[0]?.[0]?.verse_number ?? 1);
   }, [surah?.id, pages.length]);
-
-  const goToPage = (index: number) => {
-    pagerRef.current?.scrollTo({ x: SCREEN_W * index, animated: true });
-    currentPageRef.current = index;
-    setCurrentPage(index);
-    if (pages[index]?.[0] && surah) {
-      saveLastRead(surah.id, pages[index][0].verse_number);
-    }
-  };
 
   const onMomentumScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / SCREEN_W);
     if (index !== currentPageRef.current) {
       currentPageRef.current = index;
-      setCurrentPage(index);
       if (pages[index]?.[0] && surah) {
         saveLastRead(surah.id, pages[index][0].verse_number);
       }
@@ -350,7 +267,10 @@ export default function VerseReaderScreen() {
     return (
       <View className="flex-1">
         <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
-          <VerseReaderHeader surah={surah} lang={lang} onLangChange={setLang} />
+          <ReaderHeader
+            title={surah.name_arabic}
+            subtitle={`${surah.name_pashto} • ${surah.total_verses} آیات`}
+          />
           {bismillah && <BismillahBanner verse={bismillah} lang={lang} />}
           <View className="flex-1 items-center justify-center px-8 bg-transparent">
             <Text className="text-5xl mb-4">📖</Text>
@@ -371,9 +291,11 @@ export default function VerseReaderScreen() {
   return (
     <View className="flex-1">
       <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
-        <VerseReaderHeader surah={surah} lang={lang} onLangChange={setLang} />
+        <ReaderHeader
+          title={surah.name_arabic}
+          subtitle={`${surah.name_pashto} • ${surah.total_verses} آیات`}
+        />
 
-        {/* Native paging scroll — each child is exactly one screen wide */}
         <ScrollView
           ref={pagerRef}
           horizontal
@@ -391,17 +313,13 @@ export default function VerseReaderScreen() {
                 surahNumber={surahNumber}
                 lang={lang}
                 surahName={surah.name_arabic}
+                fontSize={fontSize}
+                pageIndex={index}
+                totalPages={totalPages}
               />
             </View>
           ))}
         </ScrollView>
-
-        <PageFooter
-          current={currentPage}
-          total={totalPages}
-          onPrev={() => currentPage > 0 && goToPage(currentPage - 1)}
-          onNext={() => currentPage < totalPages - 1 && goToPage(currentPage + 1)}
-        />
       </SafeAreaView>
     </View>
   );
@@ -412,4 +330,41 @@ const styles = StyleSheet.create({
   pageSlot: { width: SCREEN_W, flex: 1 },
   page: { flex: 1 },
   pageContent: { paddingTop: 4, paddingBottom: 24 },
+  // Decorative double border around each book page.
+  bookFrame: {
+    flex: 1,
+    margin: 8,
+    borderWidth: 1.5,
+    borderColor: "rgba(22,101,52,0.55)",
+    borderRadius: 10,
+    padding: 4,
+  },
+  bookFrameInner: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "rgba(22,101,52,0.35)",
+    borderRadius: 6,
+    overflow: "hidden",
+  },
+  bookHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 6,
+  },
+  bookHeaderRule: {
+    height: 1,
+    backgroundColor: "rgba(22,101,52,0.25)",
+    marginHorizontal: 10,
+  },
+  bookFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 14,
+    paddingTop: 8,
+    paddingBottom: 12,
+  },
 });

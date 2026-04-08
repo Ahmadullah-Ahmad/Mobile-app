@@ -5,9 +5,8 @@
  * Uses INSERT OR IGNORE so it is safe to call repeatedly.
  */
 
-import type { DB } from "./index";
+import type { DB } from "./client";
 import { juz, surahs } from "./schema";
-import { sql } from "drizzle-orm";
 
 // ─── Surah metadata (114 surahs) ─────────────────────────────────────────────
 

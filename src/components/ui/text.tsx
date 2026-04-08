@@ -1,4 +1,4 @@
-import { useTheme } from '@/contexts/theme-context';
+import { useTheme } from '@/theme';
 import { cn } from '@/lib/utils';
 import * as React from 'react';
 import { Text } from 'react-native';

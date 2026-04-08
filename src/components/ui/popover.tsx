@@ -38,7 +38,7 @@ interface PopoverContentProps {
 const PopoverContext = React.createContext<{
   open: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
-  triggerRef: React.RefObject<View>
+  triggerRef: React.RefObject<View | null>
   triggerLayout: { x: number; y: number; width: number; height: number } | null
   setTriggerLayout: React.Dispatch<React.SetStateAction<{ x: number; y: number; width: number; height: number } | null>>
   contentLayout: { width: number; height: number } | null

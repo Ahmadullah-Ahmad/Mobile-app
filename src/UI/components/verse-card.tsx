@@ -1,14 +1,11 @@
-import { TranslationLang, useBookmark } from "@/hooks/use-quran";
-import { Verse } from "@/lib/quran-db";
-import { cn } from "@/lib/utils";
-import Text from "@/components/ui/text";
-import View from "@/components/ui/view";
 import { Pressable } from "react-native";
 
-/** Convert a number to Arabic-Indic numerals (٠١٢٣٤٥٦٧٨٩) */
-function toArabicNumeral(n: number): string {
-  return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
-}
+import Text from "@/components/ui/text";
+import View from "@/components/ui/view";
+import { cn, toArabicNumeral } from "@/lib/utils";
+
+import type { TranslationLang, Verse } from "../api/types";
+import { useBookmark } from "../hooks";
 
 interface Props {
   verse: Verse;

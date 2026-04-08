@@ -1,14 +1,13 @@
 import { loadSetting, saveSetting } from "@/lib/settings";
+import { getDb, seedDatabase } from "@/UI";
+import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
+import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { Directory, Paths } from "expo-file-system";
 import { Stack } from "expo-router";
 import { SQLiteProvider, useSQLiteContext } from "expo-sqlite";
-import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
-import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
-import { getDb } from "@/lib/db";
-import { seedDatabase } from "@/lib/db/seed";
-import migrations from "@/drizzle/migrations";
 import { Suspense, useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
+import migrations from "~/drizzle/migrations";
 
 // ── Bump this string whenever you regenerate assets/db/quran.db ──────────────
 const DB_VERSION = "6"; // v6: Drizzle ORM + seed
@@ -104,7 +103,7 @@ export default function QuranLayout() {
         // bundled asset cleanly — removes any corrupted WAL/SHM files.
         const sqliteDir = new Directory(Paths.document, "SQLite");
         if (sqliteDir.exists) {
-          try { sqliteDir.delete(); } catch {}
+          try { sqliteDir.delete(); } catch { }
         }
         await saveSetting("dbVersion", DB_VERSION);
       }

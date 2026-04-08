@@ -1,30 +1,60 @@
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useUiLang } from "@/lib/i18n";
+import { loadSetting, saveSetting } from "@/lib/settings";
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { loadSetting } from "@/lib/settings";
+
+type Lang = "pashto" | "dari" | "none";
+type Mode = "surah" | "juz";
 
 export default function HomeScreen() {
   const [lastRoute, setLastRoute] = useState<string | null>(null);
+  const [mode, setMode] = useState<Mode>("surah");
+  const { t } = useUiLang();
 
   useEffect(() => {
     loadSetting<string>("lastReadRoute").then(setLastRoute);
   }, []);
 
+  const pickLang = async (lang: Lang) => {
+    await saveSetting("lang", lang);
+    if (mode === "surah") {
+      (router.push as any)("/quran");
+    } else {
+      (router.push as any)("/quran/para");
+    }
+  };
+
+  const langCards: {
+    lang: Lang;
+    title: string;
+    subtitle: string;
+    icon: keyof typeof Ionicons.glyphMap;
+  }[] = [
+    { lang: "pashto", title: t("pashtoTitle"), subtitle: t("pashtoSub"), icon: "language-outline" },
+    { lang: "dari", title: t("dariTitle"), subtitle: t("dariSub"), icon: "language-outline" },
+    { lang: "none", title: t("arabicTitle"), subtitle: t("arabicSub"), icon: "book-outline" },
+  ];
+
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
-      <View className="flex-1 px-6">
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}
+      >
         {/* App title — top center */}
         <View className="items-center pt-8 pb-6">
           <Text
             style={{ fontFamily: "AmiriQuran", writingDirection: "rtl", textAlign: "center", fontSize: 40, lineHeight: 70 }}
             className="text-foreground"
           >
-            القرآن الكريم
+            {t("appTitle")}
           </Text>
           <Text className="text-muted-foreground text-center text-base">
-            د پښتو او دری ژباړې سره
+            {t("appSubtitle")}
           </Text>
         </View>
 
@@ -34,7 +64,7 @@ export default function HomeScreen() {
           {lastRoute && (
             <Pressable
               onPress={() => (router.push as any)(lastRoute)}
-              className="w-full bg-card rounded-2xl py-4 px-5 flex-row items-center justify-between active:opacity-80"
+              className="w-full bg-card rounded-2xl border border-border py-4 px-5 flex-row items-center justify-between active:opacity-80"
             >
               <View className="flex-row items-center gap-3">
                 <View className="w-10 h-10 rounded-full bg-card-foreground/20 items-center justify-center">
@@ -43,68 +73,79 @@ export default function HomeScreen() {
                 <View>
                   <Text
                     style={{ writingDirection: "rtl" }}
-                    className="text-primary-foreground text-lg font-semibold"
+                    className="text-foreground text-lg font-semibold"
                   >
-                    ادامه لوستل
+                    {t("continueReading")}
                   </Text>
-                  <Text className="text-primary-foreground/70 text-xs">
-                    Continue Reading
+                  <Text className="text-foreground/70 text-xs">
+                    {t("continueReadingSub")}
                   </Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.7)" />
+              <Ionicons name="chevron-forward" size={20} color="gray" />
             </Pressable>
           )}
 
-          {/* Surah button */}
-          <Pressable
-            onPress={() => (router.push as any)("/quran")}
-            className="w-full bg-card border border-border rounded-2xl py-4 px-5 flex-row items-center justify-between active:opacity-80"
-          >
-            <View className="flex-row items-center gap-3">
-              <View className="w-10 h-10 rounded-full bg-primary-foreground/20 items-center justify-center">
-                <Ionicons name="book-outline" size={20} color="gray" />
-              </View>
-              <View>
-                <Text
-                  style={{ writingDirection: "rtl" }}
-                  className="text-foreground text-lg font-semibold"
-                >
-                  سوره
-                </Text>
-                <Text className="text-muted-foreground text-xs">
-                  ۱۱۴ سوره
-                </Text>
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="gray" />
-          </Pressable>
+          {/* Surah / Juz tabs */}
+          <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
+            <TabsList>
+              <TabsTrigger value="surah">سوره</TabsTrigger>
+              <TabsTrigger value="juz">پاره</TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-          {/* Juz / Para button */}
+          {/* Language cards — pick a translation, then enter the app */}
+          {langCards.map((card) => (
+            <Pressable
+              key={card.lang}
+              onPress={() => pickLang(card.lang)}
+              className="w-full bg-card border border-border rounded-2xl py-4 px-5 flex-row items-center justify-between active:opacity-80"
+            >
+              <View className="flex-row items-center gap-3">
+                <View className="w-10 h-10 rounded-full bg-muted items-center justify-center">
+                  <Ionicons name={card.icon} size={20} color="gray" />
+                </View>
+                <View>
+                  <Text
+                    style={{ writingDirection: "rtl" }}
+                    className="text-foreground text-lg font-semibold"
+                  >
+                    {card.title}
+                  </Text>
+                  <Text className="text-muted-foreground text-xs">
+                    {card.subtitle}
+                  </Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="gray" />
+            </Pressable>
+          ))}
+
+          {/* Settings card */}
           <Pressable
-            onPress={() => (router.push as any)("/quran/para")}
+            onPress={() => (router.push as any)("/settings")}
             className="w-full bg-card border border-border rounded-2xl py-4 px-5 flex-row items-center justify-between active:opacity-80"
           >
             <View className="flex-row items-center gap-3">
               <View className="w-10 h-10 rounded-full bg-muted items-center justify-center">
-                <Ionicons name="layers-outline" size={20} color="gray" />
+                <Ionicons name="settings-outline" size={20} color="gray" />
               </View>
               <View>
                 <Text
                   style={{ writingDirection: "rtl" }}
                   className="text-foreground text-lg font-semibold"
                 >
-                  پاره
+                  {t("settings")}
                 </Text>
                 <Text className="text-muted-foreground text-xs">
-                  ۳۰ پاره
+                  {t("settingsSub")}
                 </Text>
               </View>
             </View>
             <Ionicons name="chevron-forward" size={20} color="gray" />
           </Pressable>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

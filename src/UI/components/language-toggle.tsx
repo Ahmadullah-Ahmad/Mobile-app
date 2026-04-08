@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { TranslationLang } from "@/hooks/use-quran";
+import type { TranslationLang } from "../api/types";
 import Text from "@/components/ui/text";
 import View from "@/components/ui/view";
 import { Pressable } from "react-native";

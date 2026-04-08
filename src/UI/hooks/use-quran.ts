@@ -1,18 +1,13 @@
 /**
  * React hooks for Quran data.
- * All hooks read through Drizzle (see lib/db) which wraps the shared
+ * All hooks read through Drizzle (see ../api/client) which wraps the shared
  * SQLiteDatabase provided by SQLiteProvider in app/quran/_layout.tsx.
  */
 
-import { useDb } from "@/lib/db";
-import { loadSetting, saveSetting } from "@/lib/settings";
 import { useCallback, useEffect, useState } from "react";
+import { loadSetting, saveSetting } from "@/lib/settings";
+import { useDb } from "../api/client";
 import {
-  Bookmark,
-  Juz,
-  LastRead,
-  Surah,
-  Verse,
   getAllJuz,
   getAllSurahs,
   getBookmarks,
@@ -23,7 +18,15 @@ import {
   saveLastRead,
   searchVerses,
   toggleBookmark,
-} from "@/lib/quran-db";
+} from "../api/queries";
+import type {
+  Bookmark,
+  Juz,
+  LastRead,
+  Surah,
+  TranslationLang,
+  Verse,
+} from "../api/types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Surah list
@@ -166,12 +169,6 @@ export function useLastRead() {
 
   return { lastRead, save };
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Translation language preference (in-memory, not persisted to DB)
-// ─────────────────────────────────────────────────────────────────────────────
-
-export type TranslationLang = "pashto" | "dari" | "both" | "none";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Juz (Para) list

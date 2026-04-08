@@ -1,7 +1,7 @@
 import { useColorScheme as useNativewindColorScheme } from 'nativewind';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useColorScheme as useNativeColorScheme } from 'react-native';
-import { themes } from '../hooks/theme';
+import { themes } from './themes';
 
 type ThemeType = 'light' | 'dark';
 
