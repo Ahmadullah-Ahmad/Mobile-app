@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import Text from "@/components/ui/text";
 import View from "@/components/ui/view";
+import { useUiLang } from "@/lib/i18n";
 import {
   JuzCard,
   ScreenHeader,
@@ -16,6 +17,7 @@ import {
 export default function ParaListScreen() {
   const { juzList, loading } = useJuzList();
   const [query, setQuery] = useState("");
+  const { t } = useUiLang();
 
   const filtered = query.trim()
     ? juzList.filter(
@@ -33,7 +35,7 @@ export default function ParaListScreen() {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator size="large" />
-        <Text className="text-muted-foreground mt-3 text-sm">بارګیرول...</Text>
+        <Text className="text-muted-foreground mt-3 text-sm">{t("loading")}</Text>
       </View>
     );
   }
@@ -41,14 +43,14 @@ export default function ParaListScreen() {
   return (
     <View className="flex-1">
       <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
-        <ScreenHeader title="پارې" subtitle="۳۰ پارې" />
+        <ScreenHeader title={t("juzListTitle")} subtitle={t("juzListSubtitle")} />
         <FlatList
           data={filtered}
           keyExtractor={(j) => String(j.number)}
           renderItem={({ item }) => <JuzCard juz={item} onPress={openJuz} />}
           ListHeaderComponent={
             <View className="bg-background pt-3 px-2">
-              <SearchBar value={query} onChange={setQuery} />
+              <SearchBar value={query} onChange={setQuery} placeholder={t("search")} />
             </View>
           }
           contentContainerStyle={{ padding: 10, gap: 8 }}

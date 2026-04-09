@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useUiLang } from "@/lib/i18n";
+import { useDirection, useUiLang } from "@/lib/i18n";
 import { loadSetting, saveSetting } from "@/lib/settings";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -14,6 +14,7 @@ export default function HomeScreen() {
   const [lastRoute, setLastRoute] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("surah");
   const { t } = useUiLang();
+  const { chevronForward, isRTL, writingDirection } = useDirection();
 
   useEffect(() => {
     loadSetting<string>("lastReadRoute").then(setLastRoute);
@@ -34,10 +35,10 @@ export default function HomeScreen() {
     subtitle: string;
     icon: keyof typeof Ionicons.glyphMap;
   }[] = [
-    { lang: "pashto", title: t("pashtoTitle"), subtitle: t("pashtoSub"), icon: "language-outline" },
-    { lang: "dari", title: t("dariTitle"), subtitle: t("dariSub"), icon: "language-outline" },
-    { lang: "none", title: t("arabicTitle"), subtitle: t("arabicSub"), icon: "book-outline" },
-  ];
+      { lang: "pashto", title: t("pashtoTitle"), subtitle: t("pashtoSub"), icon: "language-outline" },
+      { lang: "dari", title: t("dariTitle"), subtitle: t("dariSub"), icon: "language-outline" },
+      { lang: "none", title: t("arabicTitle"), subtitle: t("arabicSub"), icon: "book-outline" },
+    ];
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
@@ -66,13 +67,14 @@ export default function HomeScreen() {
               onPress={() => (router.push as any)(lastRoute)}
               className="w-full bg-card rounded-2xl border border-border py-4 px-5 flex-row items-center justify-between active:opacity-80"
             >
+              {isRTL && <Ionicons name={chevronForward} size={20} color="gray" />}
               <View className="flex-row items-center gap-3">
                 <View className="w-10 h-10 rounded-full bg-card-foreground/20 items-center justify-center">
                   <Ionicons name="bookmark-outline" size={20} color="white" />
                 </View>
                 <View>
                   <Text
-                    style={{ writingDirection: "rtl" }}
+                    style={{ writingDirection }}
                     className="text-foreground text-lg font-semibold"
                   >
                     {t("continueReading")}
@@ -82,15 +84,15 @@ export default function HomeScreen() {
                   </Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={20} color="gray" />
+              {!isRTL && <Ionicons name={chevronForward} size={20} color="gray" />}
             </Pressable>
           )}
 
           {/* Surah / Juz tabs */}
           <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
             <TabsList>
-              <TabsTrigger value="surah">سوره</TabsTrigger>
-              <TabsTrigger value="juz">پاره</TabsTrigger>
+              <TabsTrigger value="surah">{t("surahTab")}</TabsTrigger>
+              <TabsTrigger value="juz">{t("juzTab")}</TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -101,13 +103,14 @@ export default function HomeScreen() {
               onPress={() => pickLang(card.lang)}
               className="w-full bg-card border border-border rounded-2xl py-4 px-5 flex-row items-center justify-between active:opacity-80"
             >
+              {isRTL && <Ionicons name={chevronForward} size={20} color="gray" />}
               <View className="flex-row items-center gap-3">
                 <View className="w-10 h-10 rounded-full bg-muted items-center justify-center">
                   <Ionicons name={card.icon} size={20} color="gray" />
                 </View>
                 <View>
                   <Text
-                    style={{ writingDirection: "rtl" }}
+                    style={{ writingDirection }}
                     className="text-foreground text-lg font-semibold"
                   >
                     {card.title}
@@ -117,22 +120,48 @@ export default function HomeScreen() {
                   </Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={20} color="gray" />
+              {!isRTL && <Ionicons name={chevronForward} size={20} color="gray" />}
             </Pressable>
           ))}
+
+          {/* Bookmarks card */}
+          <Pressable
+            onPress={() => (router.push as any)("/quran/bookmarks")}
+            className="w-full bg-card border border-border rounded-2xl py-4 px-5 flex-row items-center justify-between active:opacity-80"
+          >
+            {isRTL && <Ionicons name={chevronForward} size={20} color="gray" />}
+            <View className="flex-row items-center gap-3">
+              <View className="w-10 h-10 rounded-full bg-muted items-center justify-center">
+                <Ionicons name="bookmark-outline" size={20} color="gray" />
+              </View>
+              <View>
+                <Text
+                  style={{ writingDirection }}
+                  className="text-foreground text-lg font-semibold"
+                >
+                  {t("bookmarks")}
+                </Text>
+                <Text className="text-muted-foreground text-xs">
+                  {t("bookmarksSub")}
+                </Text>
+              </View>
+            </View>
+            {!isRTL && <Ionicons name={chevronForward} size={20} color="gray" />}
+          </Pressable>
 
           {/* Settings card */}
           <Pressable
             onPress={() => (router.push as any)("/settings")}
             className="w-full bg-card border border-border rounded-2xl py-4 px-5 flex-row items-center justify-between active:opacity-80"
           >
+            {isRTL && <Ionicons name={chevronForward} size={20} color="gray" />}
             <View className="flex-row items-center gap-3">
               <View className="w-10 h-10 rounded-full bg-muted items-center justify-center">
                 <Ionicons name="settings-outline" size={20} color="gray" />
               </View>
               <View>
                 <Text
-                  style={{ writingDirection: "rtl" }}
+                  style={{ writingDirection }}
                   className="text-foreground text-lg font-semibold"
                 >
                   {t("settings")}
@@ -142,7 +171,7 @@ export default function HomeScreen() {
                 </Text>
               </View>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="gray" />
+            {!isRTL && <Ionicons name={chevronForward} size={20} color="gray" />}
           </Pressable>
         </View>
       </ScrollView>

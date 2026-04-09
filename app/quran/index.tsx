@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "@/components/ui/text";
 import View from "@/components/ui/view";
 import { useIconColors } from "@/hooks/use-icon-colors";
+import { useDirection, useUiLang } from "@/lib/i18n";
 import {
   ScreenHeader,
   SearchBar,
@@ -19,6 +20,8 @@ import {
 // ─── Continue-reading pill ───────────────────────────────────────────────────
 function ContinueReading({ lastSurahId }: { lastSurahId?: number }) {
   const { primary } = useIconColors();
+  const { flexRow, chevronForward } = useDirection();
+  const { t } = useUiLang();
   if (lastSurahId == null) return null;
 
   return (
@@ -26,10 +29,11 @@ function ContinueReading({ lastSurahId }: { lastSurahId?: number }) {
       <Pressable
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onPress={() => (router.push as any)(`/quran/${lastSurahId}`)}
-        className="bg-primary/10 border border-primary/20 rounded-2xl px-4 py-3 flex-row items-center justify-between"
+        style={{ flexDirection: flexRow }}
+        className="bg-primary/10 border border-primary/20 rounded-2xl px-4 py-3 items-center justify-between"
       >
-        <Text className="text-primary font-medium text-sm">ادامه لوستل</Text>
-        <Ionicons name="chevron-forward" size={20} color={primary} />
+        <Text className="text-primary font-medium text-sm">{t("continueReading")}</Text>
+        <Ionicons name={chevronForward} size={20} color={primary} />
       </Pressable>
     </View>
   );
@@ -40,6 +44,7 @@ export default function SurahListScreen() {
   const { surahs, loading } = useSurahs();
   const { lastRead } = useLastRead();
   const [query, setQuery] = useState("");
+  const { t } = useUiLang();
 
   const filtered = query.trim()
     ? surahs.filter(
@@ -59,7 +64,7 @@ export default function SurahListScreen() {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator size="large" />
-        <Text className="text-muted-foreground mt-3 text-sm">بارګیرول...</Text>
+        <Text className="text-muted-foreground mt-3 text-sm">{t("loading")}</Text>
       </View>
     );
   }
@@ -67,7 +72,7 @@ export default function SurahListScreen() {
   return (
     <View className="flex-1">
       <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
-        <ScreenHeader title="القرآن الكريم" subtitle="پښتو او دری ژباړه" />
+        <ScreenHeader title={t("surahListTitle")} subtitle={t("surahListSubtitle")} />
         <FlatList
           data={filtered}
           keyExtractor={(s) => String(s.id)}
@@ -75,7 +80,7 @@ export default function SurahListScreen() {
           ListHeaderComponent={
             <View className="bg-background pt-3">
               <ContinueReading lastSurahId={lastRead?.surah_id} />
-              <SearchBar value={query} onChange={setQuery} />
+              <SearchBar value={query} onChange={setQuery} placeholder={t("search")} />
             </View>
           }
           contentContainerStyle={{ paddingBottom: 32 }}

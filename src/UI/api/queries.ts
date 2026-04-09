@@ -182,6 +182,10 @@ export async function toggleBookmark(
   return true; // added
 }
 
+export async function deleteBookmark(db: DB, id: number): Promise<void> {
+  await db.delete(bookmarks).where(eq(bookmarks.id, id));
+}
+
 export async function isBookmarked(
   db: DB,
   surahId: number,

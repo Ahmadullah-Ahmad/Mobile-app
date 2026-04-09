@@ -15,6 +15,7 @@ export {
   searchVerses,
   getBookmarks,
   toggleBookmark,
+  deleteBookmark,
   isBookmarked,
   saveLastRead,
   getLastRead,

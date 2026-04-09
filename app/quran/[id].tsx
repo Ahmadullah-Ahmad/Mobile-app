@@ -15,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "@/components/ui/text";
 import View from "@/components/ui/view";
 import { useFontSize } from "@/lib/font-size";
+import { useDirection, useUiLang } from "@/lib/i18n";
 import { chunk, toArabicNumeral } from "@/lib/utils";
 import {
   BismillahBanner,
@@ -27,6 +28,7 @@ import {
   type Surah,
   type Verse,
 } from "@/UI";
+import BackWordButton from "@/UI/components/back-word-button";
 
 const SCREEN_W = Dimensions.get("window").width;
 
@@ -73,10 +75,10 @@ function BookPage({
 
   const showPashto = lang === "pashto" || lang === "both";
   const showDari = lang === "dari" || lang === "both";
-
   const arabicSize = fontSize + 6;
   const transSize = fontSize - 2;
-
+  const { t } = useUiLang();
+  const { writingDirection } = useDirection()
   const firstVerse = verses[0]?.verse_number;
   const lastVerse = verses[verses.length - 1]?.verse_number;
   const verseRange =
@@ -90,19 +92,19 @@ function BookPage({
     <View style={styles.bookFrame}>
       <View style={styles.bookFrameInner}>
         {/* ── Frame header: surah name + ayah range ── */}
-        <View style={styles.bookHeader}>
+        <View style={[styles.bookHeader, { direction: writingDirection }]}>
           <Text
             style={{
               fontFamily: "AmiriQuran",
-              fontSize: 18,
-              writingDirection: "rtl",
+              writingDirection,
+              textAlign: "right",
             }}
-            className="text-foreground"
+            className="text-foreground text-xs"
           >
             {surahName}
           </Text>
-          <Text className="text-muted-foreground text-xs">
-            آیات {verseRange}
+          <Text style={{ writingDirection: "rtl" }} className="text-muted-foreground text-xs">
+            {t("ayat")} {verseRange}
           </Text>
         </View>
         <View style={styles.bookHeaderRule} />
@@ -117,18 +119,18 @@ function BookPage({
           )}
 
           <Pressable onLongPress={sharePage}>
-            <View className="px-4 pt-2 pb-4">
+            <View className="px-4 pt-2 pb-4 bg-transparent">
               {verses.map((v, i) => (
                 <View
                   key={v.id}
-                  className={i > 0 ? "mt-3 pt-3 border-t border-border/50" : ""}
+                  className={i > 0 ? "mt-3 pt-3 border-t border-border/50 bg-transparent" : "bg-transparent"}
                 >
                   <Text
                     style={{
                       fontFamily: "AmiriQuran",
                       fontSize: arabicSize,
                       lineHeight: arabicSize * 2,
-                      textAlign: "justify",
+                      textAlign: "right",
                       writingDirection: "rtl",
                     }}
                     className="text-foreground"
@@ -198,7 +200,8 @@ function BookPage({
 export default function VerseReaderScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const surahNumber = Number(id);
-
+  const { flexRow, writingDirection } = useDirection();
+  const { t } = useUiLang();
   const db = useDb();
   const [surah, setSurah] = useState<Surah | null>(null);
   const { lang } = useTranslationLang("pashto");
@@ -257,29 +260,29 @@ export default function VerseReaderScreen() {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator size="large" color="#166534" />
-        <Text className="text-muted-foreground mt-3 text-sm">بارګیرول...</Text>
+        <Text className="text-muted-foreground mt-3 text-sm">{t("loading")}</Text>
       </View>
     );
   }
 
-  // ── Empty ─────────────────────────────────────────────────────────────────
+  // ── Empty (only when surah genuinely has no verses in DB) ─────────────────
   if (numbered.length === 0) {
     return (
       <View className="flex-1">
         <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
           <ReaderHeader
             title={surah.name_arabic}
-            subtitle={`${surah.name_pashto} • ${surah.total_verses} آیات`}
+            subtitle={`${surah.name_pashto} • ${surah.total_verses} ${t("ayat")}`}
           />
           {bismillah && <BismillahBanner verse={bismillah} lang={lang} />}
           <View className="flex-1 items-center justify-center px-8 bg-transparent">
             <Text className="text-5xl mb-4">📖</Text>
             <Text
               type="subtitle"
-              style={{ writingDirection: "rtl", textAlign: "center" }}
+              style={{ writingDirection, textAlign: "center" }}
               className="mb-2"
             >
-              ژباړه لا اضافه نه ده شوې
+              {t("noTranslation")}
             </Text>
           </View>
         </SafeAreaView>
@@ -291,10 +294,9 @@ export default function VerseReaderScreen() {
   return (
     <View className="flex-1">
       <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
-        <ReaderHeader
-          title={surah.name_arabic}
-          subtitle={`${surah.name_pashto} • ${surah.total_verses} آیات`}
-        />
+        <View style={{ flexDirection: flexRow }} className=" px-2">
+          <BackWordButton />
+        </View>
 
         <ScrollView
           ref={pagerRef}

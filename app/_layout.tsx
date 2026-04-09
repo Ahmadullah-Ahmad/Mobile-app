@@ -1,7 +1,11 @@
 import { Slot, SplashScreen } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { I18nManager } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+// Allow per-component RTL on Android (writingDirection style).
+I18nManager.allowRTL(true);
 import {
   SafeAreaProvider,
   initialWindowMetrics
@@ -11,6 +15,9 @@ import { ThemeProvider, useTheme } from '@/theme';
 import View from '@/components/ui/view';
 import './global.css';
 
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Unable to activate keep awake']);
+
 SplashScreen.preventAutoHideAsync();
 
 /** Inner shell — lives inside ThemeProvider so it can read the current theme */
@@ -19,7 +26,11 @@ function ThemedApp() {
 
   return (
     <View className="flex-1">
-      <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+      <StatusBar
+        style={theme === 'dark' ? 'light' : 'dark'}
+        translucent
+        backgroundColor="transparent"
+      />
       <Slot />
     </View>
   );

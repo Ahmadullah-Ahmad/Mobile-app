@@ -126,6 +126,7 @@ function BookPage({
               fontFamily: "AmiriQuran",
               fontSize: 18,
               writingDirection: "rtl",
+              textAlign: "right",
             }}
             className="text-foreground"
           >

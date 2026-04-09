@@ -4,6 +4,7 @@ import { Pressable } from "react-native";
 import Text from "@/components/ui/text";
 import View from "@/components/ui/view";
 import { useIconColors } from "@/hooks/use-icon-colors";
+import { useDirection } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 interface PageFooterProps {
@@ -26,12 +27,13 @@ export default function PageFooter({
   onNext,
 }: PageFooterProps) {
   const { foreground } = useIconColors();
+  const { chevronBack, chevronForward, flexRow } = useDirection();
   const progress = total > 1 ? (current / (total - 1)) * 100 : 100;
   const atStart = current === 0;
   const atEnd = current === total - 1;
 
   return (
-    <View className="flex-row items-center px-5 py-3 border-t border-border gap-3">
+    <View style={{ flexDirection: flexRow }} className="items-center px-5 py-3 border-t border-border gap-3">
       <Pressable
         onPress={onPrev}
         disabled={atStart}
@@ -41,7 +43,7 @@ export default function PageFooter({
           atStart && "opacity-25"
         )}
       >
-        <Ionicons name="chevron-back" size={22} color={foreground} />
+        <Ionicons name={chevronBack} size={22} color={foreground} />
       </Pressable>
 
       <View className="flex-1 items-center gap-1">
@@ -65,7 +67,7 @@ export default function PageFooter({
           atEnd && "opacity-25"
         )}
       >
-        <Ionicons name="chevron-forward" size={22} color={foreground} />
+        <Ionicons name={chevronForward} size={22} color={foreground} />
       </Pressable>
     </View>
   );

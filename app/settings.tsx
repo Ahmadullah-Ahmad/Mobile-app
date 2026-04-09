@@ -1,32 +1,43 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import {
+  Dropdown,
+  DropdownContent,
+  DropdownItem,
+  DropdownTrigger,
+} from "@/components/ui/dropdown";
 import {
   DEFAULT_FONT_SIZE,
   MAX_FONT_SIZE,
   MIN_FONT_SIZE,
   useFontSize,
 } from "@/lib/font-size";
-import { UI_LANG_LABELS, useUiLang, type UiLang } from "@/lib/i18n";
+import { UI_LANG_LABELS, useDirection, useUiLang, type UiLang } from "@/lib/i18n";
+import { useTheme } from "@/theme";
 
 const UI_LANGS: UiLang[] = ["pashto", "dari", "english"];
 
 export default function SettingsScreen() {
-  const { lang: uiLang, setLang: setUiLang, t } = useUiLang();
+  const { lang: uiLang, setLang: setUiLang, t, isRTL } = useUiLang();
+  const { flexRow, chevronBack } = useDirection(isRTL);
   const { fontSize, increase, decrease } = useFontSize();
+  const { theme, setTheme } = useTheme();
+  const [langOpen, setLangOpen] = useState(false);
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-background">
       {/* Header */}
-      <View className="px-5 pt-2 pb-4 flex-row items-center gap-3">
+      <View style={{ flexDirection: flexRow }} className="px-5 pt-2 pb-4 items-center gap-3">
         <Pressable
           onPress={() => router.back()}
           hitSlop={10}
           className="w-10 h-10 rounded-full bg-card border border-border items-center justify-center active:opacity-80"
         >
-          <Ionicons name="chevron-back" size={22} color="gray" />
+          <Ionicons name={chevronBack} size={22} color="gray" />
         </Pressable>
         <Text className="text-foreground text-2xl font-semibold">
           {t("settings")}
@@ -34,7 +45,7 @@ export default function SettingsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 20, gap: 24 }}>
-        {/* ── UI Language ───────────────────────────────────────────────── */}
+        {/* ── UI Language (dropdown) ────────────────────────────────────── */}
         <View className="gap-2">
           <Text className="text-foreground text-base font-semibold">
             {t("uiLanguage")}
@@ -42,26 +53,82 @@ export default function SettingsScreen() {
           <Text className="text-muted-foreground text-xs mb-1">
             {t("uiLanguageSub")}
           </Text>
-          <View className="bg-card border border-border rounded-2xl overflow-hidden">
-            {UI_LANGS.map((l, i) => {
-              const selected = uiLang === l;
-              return (
-                <Pressable
+          <Dropdown open={langOpen} onOpenChange={setLangOpen}>
+            <DropdownTrigger>
+              <View className="bg-card border border-border rounded-2xl px-5 py-4 flex-row items-center justify-between">
+                <Text className="text-foreground text-base">
+                  {UI_LANG_LABELS[uiLang]}
+                </Text>
+                <Ionicons name="chevron-down" size={18} color="gray" />
+              </View>
+            </DropdownTrigger>
+            <DropdownContent align="center">
+              {UI_LANGS.map((l) => (
+                <DropdownItem
                   key={l}
-                  onPress={() => setUiLang(l)}
-                  className={`flex-row items-center justify-between px-5 py-4 active:opacity-80 ${
-                    i > 0 ? "border-t border-border" : ""
-                  }`}
+                  icon="language-outline"
+                  onSelect={() => setUiLang(l)}
+                  shortcut={uiLang === l ? "✓" : undefined}
                 >
-                  <Text className="text-foreground text-base">
-                    {UI_LANG_LABELS[l]}
-                  </Text>
-                  {selected && (
-                    <Ionicons name="checkmark" size={20} color="#16a34a" />
-                  )}
-                </Pressable>
-              );
-            })}
+                  {UI_LANG_LABELS[l]}
+                </DropdownItem>
+              ))}
+            </DropdownContent>
+          </Dropdown>
+        </View>
+
+        {/* ── Theme toggle ──────────────────────────────────────────────── */}
+        <View className="gap-2">
+          <Text className="text-foreground text-base font-semibold">
+            {t("theme")}
+          </Text>
+          <Text className="text-muted-foreground text-xs mb-1">
+            {t("themeSub")}
+          </Text>
+          <View className="bg-card border border-border rounded-2xl flex-row overflow-hidden">
+            <Pressable
+              onPress={() => setTheme("light")}
+              className={`flex-1 flex-row items-center justify-center gap-2 py-4 ${
+                theme === "light" ? "bg-primary/10" : ""
+              }`}
+            >
+              <Ionicons
+                name="sunny-outline"
+                size={20}
+                color={theme === "light" ? "#16a34a" : "gray"}
+              />
+              <Text
+                className={
+                  theme === "light"
+                    ? "text-primary font-semibold"
+                    : "text-muted-foreground"
+                }
+              >
+                {t("light")}
+              </Text>
+            </Pressable>
+            <View className="w-px bg-border" />
+            <Pressable
+              onPress={() => setTheme("dark")}
+              className={`flex-1 flex-row items-center justify-center gap-2 py-4 ${
+                theme === "dark" ? "bg-primary/10" : ""
+              }`}
+            >
+              <Ionicons
+                name="moon-outline"
+                size={20}
+                color={theme === "dark" ? "#16a34a" : "gray"}
+              />
+              <Text
+                className={
+                  theme === "dark"
+                    ? "text-primary font-semibold"
+                    : "text-muted-foreground"
+                }
+              >
+                {t("dark")}
+              </Text>
+            </Pressable>
           </View>
         </View>
 
