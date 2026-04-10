@@ -237,8 +237,6 @@ export function useUiLang() {
     });
   }, []);
 
-  // While loading the saved setting, use device default silently
-  // (no re-render flash — we block rendering until loaded)
   const resolvedLang = lang ?? getDeviceDefault();
 
   const setLang = useCallback((next: UiLang) => {
@@ -254,25 +252,3 @@ export function useUiLang() {
   return { lang: resolvedLang, setLang, t, isRTL, isLoaded };
 }
 
-/**
- * Direction-aware layout helpers. Returns values for flex-row, text alignment,
- * and chevron icon names based on the current UI language.
- * Works identically on Android and iOS — no I18nManager dependency.
- */
-export function useDirection(isRTLOverride?: boolean) {
-  const { isRTL: detected } = useUiLang();
-  const isRTL = isRTLOverride ?? detected;
-
-  return {
-    isRTL,
-    flexRow: (isRTL ? "row-reverse" : "row") as "row" | "row-reverse",
-    textAlign: (isRTL ? "right" : "left") as "right" | "left",
-    writingDirection: (isRTL ? "rtl" : "ltr") as "rtl" | "ltr",
-    chevronBack: (isRTL ? "chevron-forward" : "chevron-back") as
-      | "chevron-forward"
-      | "chevron-back",
-    chevronForward: (isRTL ? "chevron-back" : "chevron-forward") as
-      | "chevron-back"
-      | "chevron-forward",
-  };
-}

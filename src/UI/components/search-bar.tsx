@@ -4,7 +4,7 @@ import { Pressable } from "react-native";
 import { Input } from "@/components/ui/input";
 import View from "@/components/ui/view";
 import { useIconColors } from "@/hooks/use-icon-colors";
-import { useDirection } from "@/lib/i18n";
+import { useDirection } from "@/lib/i18n-provider";
 
 interface SearchBarProps {
   value: string;

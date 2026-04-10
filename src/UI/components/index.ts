@@ -1,4 +1,3 @@
-export { default as VerseCard } from "./verse-card";
 export { default as LanguageToggle } from "./language-toggle";
 export { default as ReaderHeader } from "./reader-header";
 export { default as ScreenHeader } from "./screen-header";

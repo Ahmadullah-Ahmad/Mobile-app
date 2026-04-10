@@ -12,6 +12,7 @@ import {
 } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { ThemeProvider, useTheme } from '@/theme';
+import { UiLangProvider } from '@/lib/i18n-provider';
 import View from '@/components/ui/view';
 import './global.css';
 
@@ -41,7 +42,6 @@ export default function RootLayout() {
     'AmiriQuran': require('../assets/fonts/AmiriQuran.ttf'),
     'Amiri': require('../assets/fonts/Amiri-Regular.ttf'),
   });
-
   useEffect(() => {
     if (fontsLoaded) SplashScreen.hideAsync();
   }, [fontsLoaded]);
@@ -52,7 +52,9 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <ThemeProvider defaultTheme="system">
-          <ThemedApp />
+          <UiLangProvider>
+            <ThemedApp />
+          </UiLangProvider>
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

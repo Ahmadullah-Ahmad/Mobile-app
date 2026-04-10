@@ -15,7 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "@/components/ui/text";
 import View from "@/components/ui/view";
 import { useFontSize } from "@/lib/font-size";
-import { useDirection, useUiLang } from "@/lib/i18n";
+import { useDirection, useSharedUiLang } from "@/lib/i18n-provider";
 import { chunk, toArabicNumeral } from "@/lib/utils";
 import {
   BismillahBanner,
@@ -28,7 +28,6 @@ import {
   type Surah,
   type Verse,
 } from "@/UI";
-import BackWordButton from "@/UI/components/back-word-button";
 
 const SCREEN_W = Dimensions.get("window").width;
 
@@ -77,7 +76,7 @@ function BookPage({
   const showDari = lang === "dari" || lang === "both";
   const arabicSize = fontSize + 6;
   const transSize = fontSize - 2;
-  const { t } = useUiLang();
+  const { t } = useSharedUiLang();
   const { writingDirection } = useDirection()
   const firstVerse = verses[0]?.verse_number;
   const lastVerse = verses[verses.length - 1]?.verse_number;
@@ -201,7 +200,7 @@ export default function VerseReaderScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const surahNumber = Number(id);
   const { flexRow, writingDirection } = useDirection();
-  const { t } = useUiLang();
+  const { t } = useSharedUiLang();
   const db = useDb();
   const [surah, setSurah] = useState<Surah | null>(null);
   const { lang } = useTranslationLang("pashto");
@@ -294,10 +293,6 @@ export default function VerseReaderScreen() {
   return (
     <View className="flex-1">
       <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
-        <View style={{ flexDirection: flexRow }} className=" px-2">
-          <BackWordButton />
-        </View>
-
         <ScrollView
           ref={pagerRef}
           horizontal

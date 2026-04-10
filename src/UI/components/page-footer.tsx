@@ -4,7 +4,7 @@ import { Pressable } from "react-native";
 import Text from "@/components/ui/text";
 import View from "@/components/ui/view";
 import { useIconColors } from "@/hooks/use-icon-colors";
-import { useDirection } from "@/lib/i18n";
+import { useDirection } from "@/lib/i18n-provider";
 import { cn } from "@/lib/utils";
 
 interface PageFooterProps {

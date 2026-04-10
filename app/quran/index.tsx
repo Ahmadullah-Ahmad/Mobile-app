@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "@/components/ui/text";
 import View from "@/components/ui/view";
 import { useIconColors } from "@/hooks/use-icon-colors";
-import { useDirection, useUiLang } from "@/lib/i18n";
+import { useDirection, useSharedUiLang } from "@/lib/i18n-provider";
 import {
   ScreenHeader,
   SearchBar,
@@ -21,7 +21,7 @@ import {
 function ContinueReading({ lastSurahId }: { lastSurahId?: number }) {
   const { primary } = useIconColors();
   const { flexRow, chevronForward } = useDirection();
-  const { t } = useUiLang();
+  const { t } = useSharedUiLang();
   if (lastSurahId == null) return null;
 
   return (
@@ -44,7 +44,7 @@ export default function SurahListScreen() {
   const { surahs, loading } = useSurahs();
   const { lastRead } = useLastRead();
   const [query, setQuery] = useState("");
-  const { t } = useUiLang();
+  const { t } = useSharedUiLang();
 
   const filtered = query.trim()
     ? surahs.filter(

@@ -46,9 +46,11 @@ function ContextMenu({ children }: { children: React.ReactNode }) {
 function ContextMenuTrigger({
   children,
   className,
+  onPress,
 }: {
   children: React.ReactNode;
   className?: string;
+  onPress?: () => void;
 }) {
   const ref = React.useRef<View>(null);
   const { setOpen, setAnchor } = React.useContext(Ctx);
@@ -63,6 +65,7 @@ function ContextMenuTrigger({
   return (
     <Pressable
       ref={ref}
+      onPress={onPress}
       onLongPress={handleLongPress}
       delayLongPress={400}
       className={className}

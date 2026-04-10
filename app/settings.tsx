@@ -16,14 +16,16 @@ import {
   MIN_FONT_SIZE,
   useFontSize,
 } from "@/lib/font-size";
-import { UI_LANG_LABELS, useDirection, useUiLang, type UiLang } from "@/lib/i18n";
+import { UI_LANG_LABELS, type UiLang } from "@/lib/i18n";
+import { useDirection, useSharedUiLang } from "@/lib/i18n-provider";
 import { useTheme } from "@/theme";
 
 const UI_LANGS: UiLang[] = ["pashto", "dari", "english"];
 
 export default function SettingsScreen() {
-  const { lang: uiLang, setLang: setUiLang, t, isRTL } = useUiLang();
+  const { lang: uiLang, setLang: setUiLang, t, isRTL } = useSharedUiLang();
   const { flexRow, chevronBack } = useDirection(isRTL);
+  const textAlign = isRTL ? "right" as const : "left" as const;
   const { fontSize, increase, decrease } = useFontSize();
   const { theme, setTheme } = useTheme();
   const [langOpen, setLangOpen] = useState(false);
@@ -39,7 +41,7 @@ export default function SettingsScreen() {
         >
           <Ionicons name={chevronBack} size={22} color="gray" />
         </Pressable>
-        <Text className="text-foreground text-2xl font-semibold">
+        <Text className="text-foreground text-2xl font-semibold" style={{ textAlign }}>
           {t("settings")}
         </Text>
       </View>
@@ -47,10 +49,10 @@ export default function SettingsScreen() {
       <ScrollView contentContainerStyle={{ padding: 20, gap: 24 }}>
         {/* ── UI Language (dropdown) ────────────────────────────────────── */}
         <View className="gap-2">
-          <Text className="text-foreground text-base font-semibold">
+          <Text className="text-foreground text-base font-semibold" style={{ textAlign }}>
             {t("uiLanguage")}
           </Text>
-          <Text className="text-muted-foreground text-xs mb-1">
+          <Text className="text-muted-foreground text-xs mb-1" style={{ textAlign }}>
             {t("uiLanguageSub")}
           </Text>
           <Dropdown open={langOpen} onOpenChange={setLangOpen}>
@@ -79,18 +81,17 @@ export default function SettingsScreen() {
 
         {/* ── Theme toggle ──────────────────────────────────────────────── */}
         <View className="gap-2">
-          <Text className="text-foreground text-base font-semibold">
+          <Text className="text-foreground text-base font-semibold" style={{ textAlign }}>
             {t("theme")}
           </Text>
-          <Text className="text-muted-foreground text-xs mb-1">
+          <Text className="text-muted-foreground text-xs mb-1" style={{ textAlign }}>
             {t("themeSub")}
           </Text>
           <View className="bg-card border border-border rounded-2xl flex-row overflow-hidden">
             <Pressable
               onPress={() => setTheme("light")}
-              className={`flex-1 flex-row items-center justify-center gap-2 py-4 ${
-                theme === "light" ? "bg-primary/10" : ""
-              }`}
+              className={`flex-1 flex-row items-center justify-center gap-2 py-4 ${theme === "light" ? "bg-primary/10" : ""
+                }`}
             >
               <Ionicons
                 name="sunny-outline"
@@ -110,9 +111,8 @@ export default function SettingsScreen() {
             <View className="w-px bg-border" />
             <Pressable
               onPress={() => setTheme("dark")}
-              className={`flex-1 flex-row items-center justify-center gap-2 py-4 ${
-                theme === "dark" ? "bg-primary/10" : ""
-              }`}
+              className={`flex-1 flex-row items-center justify-center gap-2 py-4 ${theme === "dark" ? "bg-primary/10" : ""
+                }`}
             >
               <Ionicons
                 name="moon-outline"
@@ -134,10 +134,10 @@ export default function SettingsScreen() {
 
         {/* ── Font size ─────────────────────────────────────────────────── */}
         <View className="gap-2">
-          <Text className="text-foreground text-base font-semibold">
+          <Text className="text-foreground text-base font-semibold" style={{ textAlign }}>
             {t("fontSize")}
           </Text>
-          <Text className="text-muted-foreground text-xs mb-1">
+          <Text className="text-muted-foreground text-xs mb-1" style={{ textAlign }}>
             {t("fontSizeSub")}
           </Text>
 

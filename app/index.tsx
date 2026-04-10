@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useDirection, useUiLang } from "@/lib/i18n";
+import { useDirection, useSharedUiLang } from "@/lib/i18n-provider";
 import { loadSetting, saveSetting } from "@/lib/settings";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -13,7 +13,7 @@ type Mode = "surah" | "juz";
 export default function HomeScreen() {
   const [lastRoute, setLastRoute] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("surah");
-  const { t } = useUiLang();
+  const { t } = useSharedUiLang();
   const { chevronForward, isRTL, writingDirection } = useDirection();
 
   useEffect(() => {

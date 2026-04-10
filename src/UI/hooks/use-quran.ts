@@ -59,6 +59,11 @@ export function useVerses(surahId: number) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    if (surahId === 0) {
+      setVerses([]);
+      setLoading(true); // keep loading true so callers don't show empty state
+      return;
+    }
     setLoading(true);
     getVerses(db, surahId)
       .then(setVerses)

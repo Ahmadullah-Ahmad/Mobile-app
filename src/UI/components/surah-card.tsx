@@ -4,7 +4,7 @@ import { Pressable } from "react-native";
 import Text from "@/components/ui/text";
 import View from "@/components/ui/view";
 import { useIconColors } from "@/hooks/use-icon-colors";
-import { useDirection, useUiLang } from "@/lib/i18n";
+import { useDirection, useSharedUiLang } from "@/lib/i18n-provider";
 import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +24,7 @@ export default function SurahCard({ surah, onPress }: SurahCardProps) {
   const hasContent = Boolean(surah.has_content);
   const { muted } = useIconColors();
   const { chevronForward, isRTL } = useDirection();
-  const { t } = useUiLang();
+  const { t } = useSharedUiLang();
 
   const badge = (
     <Badge variant={'secondary'}>

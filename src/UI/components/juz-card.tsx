@@ -4,7 +4,7 @@ import { Pressable } from "react-native";
 import Text from "@/components/ui/text";
 import View from "@/components/ui/view";
 import { useIconColors } from "@/hooks/use-icon-colors";
-import { useDirection, useUiLang } from "@/lib/i18n";
+import { useDirection, useSharedUiLang } from "@/lib/i18n-provider";
 
 import { Badge } from "@/components/ui/badge";
 import type { Juz } from "../api/types";
@@ -17,8 +17,8 @@ interface JuzCardProps {
 /** One row in the juz (para) list. */
 export default function JuzCard({ juz, onPress }: JuzCardProps) {
   const { muted } = useIconColors();
-  const { chevronBack, isRTL } = useDirection();
-  const { t } = useUiLang();
+  const { chevronForward, isRTL } = useDirection();
+  const { t } = useSharedUiLang();
 
   const badge = (
     <Badge variant={'secondary'}>
@@ -52,7 +52,7 @@ export default function JuzCard({ juz, onPress }: JuzCardProps) {
   );
 
   const chevron = (
-    <Ionicons name={chevronBack} size={18} color={muted} />
+    <Ionicons name={chevronForward} size={18} color={muted} />
   );
 
   return (

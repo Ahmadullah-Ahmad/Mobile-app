@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import Text from "@/components/ui/text";
 import View from "@/components/ui/view";
-import { useUiLang } from "@/lib/i18n";
+import { useSharedUiLang } from "@/lib/i18n-provider";
 import {
   JuzCard,
   ScreenHeader,
@@ -17,7 +17,7 @@ import {
 export default function ParaListScreen() {
   const { juzList, loading } = useJuzList();
   const [query, setQuery] = useState("");
-  const { t } = useUiLang();
+  const { t } = useSharedUiLang();
 
   const filtered = query.trim()
     ? juzList.filter(

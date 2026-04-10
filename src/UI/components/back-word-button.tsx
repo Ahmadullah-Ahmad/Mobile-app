@@ -1,5 +1,5 @@
 import { useIconColors } from '@/hooks/use-icon-colors'
-import { useDirection } from '@/lib/i18n'
+import { useDirection } from '@/lib/i18n-provider'
 import { Ionicons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import React from 'react'
