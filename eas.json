@@ -1,8 +1,15 @@
 {
+  "cli": {
+    "appVersionSource": "local",
+    "requireCommit": false
+  },
   "build": {
     "preview": {
+      "developmentClient": false,
+      "distribution": "internal",
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "withoutCredentials": true
       }
     }
   }
