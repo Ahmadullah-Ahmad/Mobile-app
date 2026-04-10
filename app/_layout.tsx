@@ -1,4 +1,4 @@
-import { Slot, SplashScreen } from 'expo-router';
+import { Stack, SplashScreen } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { I18nManager } from 'react-native';
@@ -32,7 +32,7 @@ function ThemedApp() {
         translucent
         backgroundColor="transparent"
       />
-      <Slot />
+      <Stack screenOptions={{ headerShown: false }} />
     </View>
   );
 }
