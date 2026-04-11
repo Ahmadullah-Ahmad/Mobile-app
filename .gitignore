@@ -42,7 +42,7 @@ yarn-error.*
 app-example
 
 # Large data directories (raw docx / source files, not the compiled DB)
-quran/
+/quran/
 
 # Drizzle generated migrations (schema is source of truth)
 drizzle/
