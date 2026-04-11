@@ -1,27 +1,13 @@
 import { loadSetting, saveSetting } from "@/lib/settings";
 import { getDb, seedDatabase } from "@/UI";
-import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import { Directory, Paths } from "expo-file-system";
 import { Stack } from "expo-router";
 import { SQLiteProvider, useSQLiteContext } from "expo-sqlite";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
-import migrations from "~/drizzle/migrations";
 
 // ── Bump this string whenever you regenerate assets/db/quran.db ──────────────
 const DB_VERSION = "6"; // v6: Drizzle ORM + seed
-
-/**
- * Set to true  → run Drizzle migrations before seeding (for a fresh/empty DB).
- * Set to false → skip migrations and go straight to seed   (asset DB already
- *                has the correct schema — this is the normal production path).
- *
- * When should you set this to true?
- *   • You wiped the asset DB and want a clean schema applied on first launch.
- *   • You added a new migration (schema change) and want it applied on device.
- * Remember to also bump DB_VERSION above so devices re-copy the asset DB first.
- */
-const RUN_MIGRATIONS = false;
 
 function Loading() {
   return (
@@ -31,37 +17,9 @@ function Loading() {
   );
 }
 
-// ── With migrations ───────────────────────────────────────────────────────────
+// ── DB provider: seed only (asset DB already has the correct schema) ────────
 
-function DbProviderWithMigrations({ children }: { children: React.ReactNode }) {
-  const sqlite = useSQLiteContext();
-  const db = getDb(sqlite);
-  const { success, error } = useMigrations(db, migrations);
-  const [seeded, setSeeded] = useState(false);
-
-  useEffect(() => {
-    if (!success) return;
-    seedDatabase(db)
-      .then(() => setSeeded(true))
-      .catch((e) => {
-        console.error("Seed failed:", e);
-        setSeeded(true); // still render — partial data is better than spinner
-      });
-  }, [success]);
-
-  if (error) {
-    console.error("Migration failed:", error);
-    // Fall through and render anyway — asset DB schema may already be correct
-    return <>{children}</>;
-  }
-
-  if (!success || !seeded) return <Loading />;
-  return <>{children}</>;
-}
-
-// ── Without migrations (default) ─────────────────────────────────────────────
-
-function DbProviderSeedOnly({ children }: { children: React.ReactNode }) {
+function DbProvider({ children }: { children: React.ReactNode }) {
   const sqlite = useSQLiteContext();
   const [ready, setReady] = useState(false);
 
@@ -92,8 +50,6 @@ function DrizzleStudio() {
 
 // ── Layout ────────────────────────────────────────────────────────────────────
 
-const DbProvider = RUN_MIGRATIONS ? DbProviderWithMigrations : DbProviderSeedOnly;
-
 export default function QuranLayout() {
   const [ready, setReady] = useState(false);
 
@@ -116,27 +72,24 @@ export default function QuranLayout() {
   if (!ready) return <Loading />;
 
   return (
-    <Suspense fallback={<Loading />}>
-      <SQLiteProvider
-        databaseName="quran.db"
-        assetSource={{ assetId: require("../../assets/db/quran.db") }}
-        useSuspense
-        onInit={async (db) => {
-          await db.execAsync("PRAGMA journal_mode = WAL;");
-          await db.execAsync("PRAGMA foreign_keys = ON;");
-        }}
-      >
-        <DrizzleStudio />
-        <DbProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: "transparent" },
-              animation: "slide_from_right",
-            }}
-          />
-        </DbProvider>
-      </SQLiteProvider>
-    </Suspense>
+    <SQLiteProvider
+      databaseName="quran.db"
+      assetSource={{ assetId: require("../../assets/db/quran.db") }}
+      onInit={async (db) => {
+        await db.execAsync("PRAGMA journal_mode = WAL;");
+        await db.execAsync("PRAGMA foreign_keys = ON;");
+      }}
+    >
+      <DrizzleStudio />
+      <DbProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: "transparent" },
+            animation: "slide_from_right",
+          }}
+        />
+      </DbProvider>
+    </SQLiteProvider>
   );
 }
