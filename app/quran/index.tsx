@@ -27,8 +27,9 @@ function ContinueReading({ lastSurahId }: { lastSurahId?: number }) {
   return (
     <View className="px-4 pt-3 pb-1 bg-background">
       <Pressable
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onPress={() => (router.push as any)(`/quran/${lastSurahId}`)}
+        onPress={() =>
+          router.push({ pathname: "/quran/[id]", params: { id: String(lastSurahId) } } as never)
+        }
         style={{ flexDirection: flexRow }}
         className="bg-primary/10 border border-primary/20 rounded-2xl px-4 py-3 items-center justify-between"
       >
@@ -57,8 +58,7 @@ export default function SurahListScreen() {
     : surahs;
 
   const openSurah = (s: Surah) =>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (router.push as any)(`/quran/${s.number}`);
+    router.push({ pathname: "/quran/[id]", params: { id: String(s.number) } } as never);
 
   if (loading) {
     return (

@@ -1,7 +1,6 @@
 import { loadSetting, saveSetting } from "@/lib/settings";
 import { getDb, seedDatabase } from "@/UI";
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
-import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { Directory, Paths } from "expo-file-system";
 import { Stack } from "expo-router";
 import { SQLiteProvider, useSQLiteContext } from "expo-sqlite";
@@ -84,7 +83,10 @@ function DbProviderSeedOnly({ children }: { children: React.ReactNode }) {
 
 function DrizzleStudio() {
   const db = useSQLiteContext();
-  useDrizzleStudio(db);
+  if (__DEV__) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports, react-hooks/rules-of-hooks
+    require("expo-drizzle-studio-plugin").useDrizzleStudio(db);
+  }
   return null;
 }
 

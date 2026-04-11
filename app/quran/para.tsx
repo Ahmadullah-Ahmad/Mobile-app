@@ -28,8 +28,7 @@ export default function ParaListScreen() {
     : juzList;
 
   const openJuz = (j: Juz) =>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (router.push as any)(`/quran/juz/${j.number}`);
+    router.push({ pathname: "/quran/juz/[number]", params: { number: String(j.number) } } as never);
 
   if (loading) {
     return (
