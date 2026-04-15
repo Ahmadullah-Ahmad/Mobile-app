@@ -27,6 +27,7 @@ export interface Verse {
   arabic: string;
   pashto: string;
   dari: string;
+  juz_number: number | null;
 }
 
 export interface Bookmark {

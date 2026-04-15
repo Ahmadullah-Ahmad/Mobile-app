@@ -9,7 +9,7 @@
  * field names because UI components/hooks already consume them that way.
  */
 
-import { and, desc, eq, gte, lte, like, or, sql } from "drizzle-orm";
+import { and, desc, eq, like, or, sql } from "drizzle-orm";
 import type { DB } from "./client";
 import { bookmarks, juz, lastRead, surahs, verses } from "./schema";
 import type { Bookmark, Juz, LastRead, Surah, Verse } from "./types";
@@ -82,6 +82,7 @@ export async function getVerses(db: DB, surahId: number): Promise<Verse[]> {
       arabic: verses.arabic,
       pashto: verses.pashto,
       dari: verses.dari,
+      juz_number: verses.juzNumber,
     })
     .from(verses)
     .where(eq(verses.surahId, surahId))
@@ -104,6 +105,7 @@ export async function searchVerses(
       arabic: verses.arabic,
       pashto: verses.pashto,
       dari: verses.dari,
+      juz_number: verses.juzNumber,
       surah_number: surahs.number,
       surah_name_pashto: surahs.namePashto,
     })
@@ -277,16 +279,6 @@ export async function getVersesByJuz(
   db: DB,
   juzNumber: number
 ): Promise<(Verse & { surah_number: number; surah_name_arabic: string })[]> {
-  // Look up the juz boundaries first
-  const j = await db
-    .select()
-    .from(juz)
-    .where(eq(juz.number, juzNumber))
-    .limit(1);
-
-  if (j.length === 0) return [];
-  const { startSurah, startVerse, endSurah, endVerse } = j[0];
-
   const rows = await db
     .select({
       id: verses.id,
@@ -295,27 +287,13 @@ export async function getVersesByJuz(
       arabic: verses.arabic,
       pashto: verses.pashto,
       dari: verses.dari,
+      juz_number: verses.juzNumber,
       surah_number: surahs.number,
       surah_name_arabic: surahs.nameArabic,
     })
     .from(verses)
     .innerJoin(surahs, eq(surahs.id, verses.surahId))
-    .where(
-      and(
-        gte(verses.verseNumber, 1),
-        or(
-          // Surahs strictly between start and end → all verses
-          and(
-            sql`${surahs.number} > ${startSurah}`,
-            sql`${surahs.number} < ${endSurah}`
-          ),
-          // Start surah → verses from startVerse onward
-          and(eq(surahs.number, startSurah), gte(verses.verseNumber, startVerse)),
-          // End surah → verses up to endVerse
-          and(eq(surahs.number, endSurah), lte(verses.verseNumber, endVerse))
-        )
-      )
-    )
+    .where(eq(verses.juzNumber, juzNumber))
     .orderBy(surahs.number, verses.verseNumber);
 
   return rows;

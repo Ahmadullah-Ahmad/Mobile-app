@@ -15,11 +15,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Text from "@/components/ui/text";
 import View from "@/components/ui/view";
 import { useFontSize } from "@/lib/font-size";
+import { useDirection } from "@/lib/i18n-provider";
 import { chunk, toArabicNumeral } from "@/lib/utils";
 import {
   getAllJuz,
-  PageFooter,
-  ReaderHeader,
   useDb,
   useJuzVerses,
   useLastRead,
@@ -87,6 +86,7 @@ function BookPage({
 }) {
   const showPashto = lang === "pashto" || lang === "both";
   const showDari = lang === "dari" || lang === "both";
+  const { writingDirection } = useDirection();
 
   const arabicSize = fontSize + 6;
   const transSize = fontSize - 2;
@@ -120,19 +120,18 @@ function BookPage({
     <View style={styles.bookFrame}>
       <View style={styles.bookFrameInner}>
         {/* ── Frame header: current surah + juz number ── */}
-        <View style={styles.bookHeader}>
+        <View style={[styles.bookHeader, { direction: writingDirection }]}>
           <Text
             style={{
               fontFamily: "AmiriQuran",
-              fontSize: 18,
-              writingDirection: "rtl",
+              writingDirection,
               textAlign: "right",
             }}
-            className="text-foreground"
+            className="text-foreground text-right mb-2"
           >
             {headerSurah}
           </Text>
-          <Text className="text-muted-foreground text-xs">
+          <Text style={{ writingDirection: "rtl" }} className="text-muted-foreground">
             پاره {toArabicNumeral(juzNumber)}
           </Text>
         </View>
@@ -145,8 +144,10 @@ function BookPage({
     >
       {groups.map((g, gi) => (
         <View key={`g-${g.surah_number}-${gi}`}>
-          {/* Show a surah heading whenever a new surah begins on this page */}
-          <SurahDivider name={g.surah_name_arabic} number={g.surah_number} />
+          {/* Show a surah heading only when the surah actually starts (verse 1) */}
+          {g.items[0].verse_number === 1 && (
+            <SurahDivider name={g.surah_name_arabic} number={g.surah_number} />
+          )}
 
           {/* Verse-by-verse body */}
           <Pressable onLongPress={sharePage}>
@@ -161,7 +162,7 @@ function BookPage({
                       fontFamily: "AmiriQuran",
                       fontSize: arabicSize,
                       lineHeight: arabicSize * 2,
-                      textAlign: "justify",
+                      textAlign: "right",
                       writingDirection: "rtl",
                     }}
                     className="text-foreground"
@@ -235,7 +236,6 @@ export default function JuzReaderScreen() {
 
   const db = useDb();
   const [juz, setJuz] = useState<Juz | null>(null);
-  const [currentPage, setCurrentPage] = useState(0);
   const { lang } = useTranslationLang("both");
   const { fontSize } = useFontSize();
   const { verses, loading } = useJuzVerses(juzNumber);
@@ -243,6 +243,7 @@ export default function JuzReaderScreen() {
 
   const pagerRef = useRef<ScrollView>(null);
   const currentPageRef = useRef(0);
+  const didInit = useRef(false);
 
   useEffect(() => {
     getAllJuz(db).then((list) => {
@@ -270,9 +271,11 @@ export default function JuzReaderScreen() {
   const pages = chunk(taggedVerses, versesPerPage);
   const totalPages = pages.length;
 
-  // Restore to saved page when verses load
+  // Restore to saved page once when verses first load
   useEffect(() => {
-    if (pages.length === 0) return;
+    if (pages.length === 0 || didInit.current) return;
+    didInit.current = true;
+
     if (lastRead && lastRead.juz_number === juzNumber) {
       const savedVerse = lastRead.verse_number;
       const savedSurah = lastRead.surah_id;
@@ -283,7 +286,6 @@ export default function JuzReaderScreen() {
         setTimeout(() => {
           pagerRef.current?.scrollTo({ x: SCREEN_W * pageIdx, animated: false });
           currentPageRef.current = pageIdx;
-          setCurrentPage(pageIdx);
         }, 100);
       }
     }
@@ -291,19 +293,10 @@ export default function JuzReaderScreen() {
     if (first) saveLastRead(first.surah_id, first.verse_number, juzNumber);
   }, [juzNumber, pages.length]);
 
-  const goToPage = (index: number) => {
-    pagerRef.current?.scrollTo({ x: SCREEN_W * index, animated: true });
-    currentPageRef.current = index;
-    setCurrentPage(index);
-    const first = pages[index]?.[0];
-    if (first) saveLastRead(first.surah_id, first.verse_number, juzNumber);
-  };
-
   const onMomentumScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / SCREEN_W);
     if (index !== currentPageRef.current) {
       currentPageRef.current = index;
-      setCurrentPage(index);
       const first = pages[index]?.[0];
       if (first) saveLastRead(first.surah_id, first.verse_number, juzNumber);
     }
@@ -321,11 +314,6 @@ export default function JuzReaderScreen() {
   return (
     <View className="flex-1">
       <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
-        <ReaderHeader
-          title={juz.name_arabic}
-          subtitle={`پاره ${juz.number}`}
-        />
-
         <ScrollView
           ref={pagerRef}
           horizontal
@@ -349,12 +337,6 @@ export default function JuzReaderScreen() {
           ))}
         </ScrollView>
 
-        <PageFooter
-          current={currentPage}
-          total={totalPages}
-          onPrev={() => currentPage > 0 && goToPage(currentPage - 1)}
-          onNext={() => currentPage < totalPages - 1 && goToPage(currentPage + 1)}
-        />
       </SafeAreaView>
     </View>
   );

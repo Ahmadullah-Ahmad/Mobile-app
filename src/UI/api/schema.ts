@@ -39,6 +39,7 @@ export const verses = sqliteTable(
     arabic: text("arabic").notNull().default(""),
     pashto: text("pashto").notNull().default(""),
     dari: text("dari").notNull().default(""),
+    juzNumber: integer("juz_number"),
   },
   (t) => ({
     surahVerseUnique: uniqueIndex("verses_surah_verse_unique").on(

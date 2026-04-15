@@ -7,7 +7,7 @@ import { Suspense, useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 // ── Bump this string whenever you regenerate assets/db/quran.db ──────────────
-const DB_VERSION = "6"; // v6: Drizzle ORM + seed
+const DB_VERSION = "7"; // v7: juz_number column on verses
 
 function Loading() {
   return (
