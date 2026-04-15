@@ -6,6 +6,6 @@ export default {
   dialect: "sqlite",
   driver: "expo",
   dbCredentials: {
-    url: "./assets/db/quran.db",
+    url: "./assets/db/app.db",
   },
 } satisfies Config;

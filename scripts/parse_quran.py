@@ -8,13 +8,13 @@ Usage:
     python3 scripts/parse_quran.py \
         --docx "د الکهف سورت پښتو ژباړه.docx" \
         --surah-number 18 \
-        --output assets/db/quran.db
+        --output assets/db/app.db
 
 To add more surahs later, run with --append flag:
     python3 scripts/parse_quran.py \
         --docx "other_surah.docx" \
         --surah-number 2 \
-        --output assets/db/quran.db \
+        --output assets/db/app.db \
         --append
 """
 
@@ -389,7 +389,7 @@ def main():
     parser = argparse.ArgumentParser(description="Parse Quran docx → SQLite")
     parser.add_argument("--docx",         required=True, help="Path to .docx file")
     parser.add_argument("--surah-number", required=True, type=int, help="Surah number (1-114)")
-    parser.add_argument("--output",       default="assets/db/quran.db", help="Output DB path")
+    parser.add_argument("--output",       default="assets/db/app.db", help="Output DB path")
     parser.add_argument("--append",       action="store_true", help="Append to existing DB")
     args = parser.parse_args()
 

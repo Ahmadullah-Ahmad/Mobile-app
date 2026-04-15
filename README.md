@@ -68,7 +68,7 @@ hooks/
   use-quran.ts          # useSurahs, useVerses, useJuzVerses, useLastRead, …
 
 assets/
-  db/quran.db           # Pre-seeded SQLite database (Arabic + Pashto + Dari)
+  db/app.db           # Pre-seeded SQLite database (Arabic + Pashto + Dari)
   fonts/                # AmiriQuran.ttf, Amiri-Regular.ttf
 
 scripts/                # Python utilities for DB management
@@ -82,7 +82,7 @@ drizzle.config.ts       # Drizzle Kit config (schema, dialect, driver)
 
 ## Database
 
-The app ships a pre-seeded `assets/db/quran.db` SQLite file. On first launch, Expo copies it to the device's document directory.
+The app ships a pre-seeded `assets/db/app.db` SQLite file. On first launch, Expo copies it to the device's document directory.
 
 **Schema tables:** `surahs`, `verses`, `bookmarks`, `last_read`, `juz`
 
@@ -98,18 +98,18 @@ On startup, the app automatically:
    On next launch the app wipes the corrupted SQLite directory, re-copies the asset DB, then runs migrations + seed automatically.
 2. Run `pnpm start:clear`.
 
-**Asset DB (`assets/db/quran.db`) is corrupted or missing:**
+**Asset DB (`assets/db/app.db`) is corrupted or missing:**
 
 ```bash
 # 1. Delete the corrupted file
-rm assets/db/quran.db
+rm assets/db/app.db
 
 # 2. Rebuild schema from Python (creates empty DB with correct tables)
 python3 scripts/init_db.py
 
 # 3. Re-import verse content from .docx files
 python3 scripts/import_dari.py
-python3 scripts/parse_quran.py --docx "quran/surah_18.docx" --surah-number 18 --output assets/db/quran.db --append
+python3 scripts/parse_quran.py --docx "quran/surah_18.docx" --surah-number 18 --output assets/db/app.db --append
 
 # 4. Bump DB_VERSION and restart
 pnpm start:clear
@@ -138,7 +138,7 @@ With the app running in dev mode, open Expo Dev Tools in your browser — a **Dr
 Place `.docx` files in the `quran/` directory (gitignored — large files) and run:
 
 ```bash
-python3 scripts/parse_quran.py --docx "quran/surah_N.docx" --surah-number N --output assets/db/quran.db --append
+python3 scripts/parse_quran.py --docx "quran/surah_N.docx" --surah-number N --output assets/db/app.db --append
 python3 scripts/import_dari.py  # batch import all Dari translations
 ```
 

@@ -1,7 +1,7 @@
 /**
  * Quran database – typed query helpers built on Drizzle ORM.
  *
- * The pre-seeded `assets/db/quran.db` file is loaded by `SQLiteProvider`
+ * The pre-seeded `assets/db/app.db` file is loaded by `SQLiteProvider`
  * (see `app/quran/_layout.tsx`); these helpers wrap that handle with
  * Drizzle so all queries are type-safe and column-name-checked at compile time.
  *

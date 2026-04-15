@@ -10,7 +10,7 @@ Handles three docx format variations:
   3. Same line: Arabic (N) Dari (N) combined
 
 Usage:
-    python3 scripts/import_dari.py --dir quran/ --db assets/db/quran.db
+    python3 scripts/import_dari.py --dir quran/ --db assets/db/app.db
 """
 
 from __future__ import annotations
@@ -318,7 +318,7 @@ def write_dari_verses(conn: sqlite3.Connection, surah_number: int, verses: list[
 def main():
     parser = argparse.ArgumentParser(description="Batch import Dari translations from docx files")
     parser.add_argument("--dir", required=True, help="Directory containing Dari .docx files")
-    parser.add_argument("--db", default="assets/db/quran.db", help="SQLite database path")
+    parser.add_argument("--db", default="assets/db/app.db", help="SQLite database path")
     parser.add_argument("--surah", type=int, help="Process only this surah number (for testing)")
     args = parser.parse_args()
 

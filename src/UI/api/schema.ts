@@ -1,7 +1,7 @@
 /**
  * Drizzle ORM schema for the Quran database.
  *
- * The DB is pre-seeded from `assets/db/quran.db`, so these definitions are
+ * The DB is pre-seeded from `assets/db/app.db`, so these definitions are
  * used purely for type-safe query building (no migrations are run at runtime).
  */
 

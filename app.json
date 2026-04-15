@@ -47,7 +47,7 @@
         "expo-asset",
         {
           "assets": [
-            "assets/db/quran.db"
+            "assets/db/app.db"
           ]
         }
       ]

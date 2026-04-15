@@ -3,7 +3,7 @@ import { getDb, seedDatabase } from "@/UI";
 import { Directory, Paths } from "expo-file-system";
 import { Stack } from "expo-router";
 import { SQLiteProvider, useSQLiteContext } from "expo-sqlite";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 // ── Bump this string whenever you regenerate assets/db/quran.db ──────────────
@@ -72,24 +72,27 @@ export default function QuranLayout() {
   if (!ready) return <Loading />;
 
   return (
-    <SQLiteProvider
-      databaseName="quran.db"
-      assetSource={{ assetId: require("../../assets/db/quran.db") }}
-      onInit={async (db) => {
-        await db.execAsync("PRAGMA journal_mode = WAL;");
-        await db.execAsync("PRAGMA foreign_keys = ON;");
-      }}
-    >
-      <DrizzleStudio />
-      <DbProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: "transparent" },
-            animation: "slide_from_right",
-          }}
-        />
-      </DbProvider>
-    </SQLiteProvider>
+    <Suspense fallback={<Loading />}>
+      <SQLiteProvider
+        databaseName="app.db"
+        assetSource={{ assetId: require("../../assets/db/app.db") }}
+        useSuspense
+        onInit={async (db) => {
+          await db.execAsync("PRAGMA journal_mode = WAL;");
+          await db.execAsync("PRAGMA foreign_keys = ON;");
+        }}
+      >
+        <DrizzleStudio />
+        <DbProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: "transparent" },
+              animation: "slide_from_right",
+            }}
+          />
+        </DbProvider>
+      </SQLiteProvider>
+    </Suspense>
   );
 }

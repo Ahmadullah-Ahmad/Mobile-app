@@ -1,7 +1,7 @@
 from pathlib import Path
 from parse_quran import init_db
 
-DB_PATH = "assets/db/quran.db"
+DB_PATH = "assets/db/app.db"
 
 def main():
     Path("assets/db").mkdir(parents=True, exist_ok=True)

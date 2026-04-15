@@ -1,6 +1,6 @@
 # import sqlite3
 
-# conn = sqlite3.connect('assets/db/quran.db')
+# conn = sqlite3.connect('assets/db/app.db')
 
 # # Create juz table
 # conn.executescript("""
@@ -109,7 +109,7 @@ from pathlib import Path
 import os
 
 # ── Set the absolute path to your DB ─────────────────────────────
-DB_PATH = Path(__file__).resolve().parent.parent / "assets/db/quran.db"
+DB_PATH = Path(__file__).resolve().parent.parent / "assets/db/app.db"
 print("Using DB file:", DB_PATH)
 
 # ── Check if file exists and permissions ──────────────────────────

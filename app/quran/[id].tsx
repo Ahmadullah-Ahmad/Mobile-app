@@ -98,11 +98,11 @@ function BookPage({
               writingDirection,
               textAlign: "right",
             }}
-            className="text-foreground text-xs"
+            className="text-foreground text-right mb-2"
           >
             {surahName}
           </Text>
-          <Text style={{ writingDirection: "rtl" }} className="text-muted-foreground text-xs">
+          <Text style={{ writingDirection: "rtl" }} className="text-muted-foreground ">
             {t("ayat")} {verseRange}
           </Text>
         </View>
