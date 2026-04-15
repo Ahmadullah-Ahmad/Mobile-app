@@ -61,7 +61,7 @@ export default function SettingsScreen() {
                 <Text className="text-foreground text-base">
                   {UI_LANG_LABELS[uiLang]}
                 </Text>
-                <Ionicons name="chevron-down" size={18} color="gray" />
+                <Ionicons name="chevron-down" size={18} color={theme === "light" ? "#000" : "#fff"} />
               </View>
             </DropdownTrigger>
             <DropdownContent align="center">
@@ -71,6 +71,7 @@ export default function SettingsScreen() {
                   icon="language-outline"
                   onSelect={() => setUiLang(l)}
                   shortcut={uiLang === l ? "✓" : undefined}
+                  iconColor={theme === "light" ? "#000" : "#fff"}
                 >
                   {UI_LANG_LABELS[l]}
                 </DropdownItem>
@@ -148,7 +149,7 @@ export default function SettingsScreen() {
               className="w-11 h-11 rounded-full bg-muted items-center justify-center active:opacity-70"
               style={{ opacity: fontSize <= MIN_FONT_SIZE ? 0.4 : 1 }}
             >
-              <Ionicons name="remove" size={22} color="gray" />
+              <Ionicons name="remove" size={22} color={theme === "light" ? "black" : "gray"} />
             </Pressable>
 
             <View className="items-center">
@@ -166,7 +167,7 @@ export default function SettingsScreen() {
               className="w-11 h-11 rounded-full bg-muted items-center justify-center active:opacity-70"
               style={{ opacity: fontSize >= MAX_FONT_SIZE ? 0.4 : 1 }}
             >
-              <Ionicons name="add" size={22} color="gray" />
+              <Ionicons name="add" size={22} color={theme === "light" ? "black" : "gray"} />
             </Pressable>
           </View>
 

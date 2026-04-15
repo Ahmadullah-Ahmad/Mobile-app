@@ -44,6 +44,7 @@ interface DropdownItemProps {
   onSelect?: () => void;
   icon?: React.ComponentProps<typeof Ionicons>["name"];
   shortcut?: string;
+  iconColor?:string
 }
 
 interface DropdownLabelProps {
@@ -277,6 +278,7 @@ const DropdownItem = React.forwardRef<View, DropdownItemProps>(
       destructive = false,
       onSelect,
       icon,
+      iconColor,
       shortcut,
       ...props
     },
@@ -306,6 +308,7 @@ const DropdownItem = React.forwardRef<View, DropdownItemProps>(
           <Ionicons
             name={icon}
             size={22}
+            color={iconColor}
             className={cn(
               "text-foreground mr-3",
               destructive && "text-destructive"

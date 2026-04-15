@@ -31,6 +31,7 @@ import {
 import { Drawer } from "@/components/ui/drawer";
 import { useIconColors } from "@/hooks/use-icon-colors";
 import { useDirection, useSharedUiLang } from "@/lib/i18n-provider";
+import { useTheme } from "@/theme";
 import {
   deleteBookmark,
   ScreenHeader,
@@ -46,8 +47,9 @@ export default function BookmarksScreen() {
   const { t } = useSharedUiLang();
   const { isRTL, } = useDirection();
   const { bookmarks, loading, refresh } = useBookmarks();
-  const { primaryForeground } = useIconColors()
+  const { foreground } = useIconColors()
   const db = useDb();
+  const { theme } = useTheme();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleDelete = useCallback(
@@ -85,7 +87,7 @@ export default function BookmarksScreen() {
       <ScreenHeader title={t("bookmarks")} />
       {bookmarks.length === 0 ? (
         <View className="flex-1 items-center justify-center px-8">
-          <Ionicons name="bookmark-outline" size={48} color="gray" />
+          <Ionicons name="bookmark-outline" size={48} color={theme === "light" ? "black" : "gray"} />
           <Text className="text-muted-foreground text-base mt-4 text-center">
             {t("noBookmarks")}
           </Text>
@@ -111,7 +113,7 @@ export default function BookmarksScreen() {
       {/* FAB — open add-bookmark drawer */}
       <Pressable
         onPress={() => setDrawerOpen(true)}
-        className="absolute bottom-8 right-6 w-14 h-14 rounded-full bg-primary items-center justify-center active:opacity-80"
+        className="absolute bottom-8 right-6 w-14 h-14 rounded-full bg-secondary items-center justify-center active:opacity-80"
         style={{
           elevation: 6,
           shadowColor: "#000",
@@ -120,9 +122,8 @@ export default function BookmarksScreen() {
           shadowRadius: 4,
         }}
       >
-        <Ionicons name="add" size={28} color={primaryForeground} />
+        <Ionicons name="add" size={28} color={'#ffff'} />
       </Pressable>
-
       {/* Add bookmark drawer */}
       <Drawer
         open={drawerOpen}
@@ -169,7 +170,7 @@ function AddBookmarkForm({
             className="flex-row items-center px-5 py-3 border-b border-border active:bg-muted/50"
           >
             <View className="w-8 h-8 rounded-full bg-muted items-center justify-center mr-3">
-              <Text className=" font-semibold">
+              <Text className=" font-semibold text-foreground">
                 {item.number}
               </Text>
             </View>
@@ -179,6 +180,7 @@ function AddBookmarkForm({
                   writingDirection: "rtl",
                   textAlign: isRTL ? "right" : "left",
                 }}
+                className="text-foreground"
               >
                 {item.name_arabic}
               </Text>
@@ -187,8 +189,9 @@ function AddBookmarkForm({
                   writingDirection: "rtl",
                   textAlign: isRTL ? "right" : "left",
                 }}
+                className="text-foreground"
               >
-                {item.name_pashto} sdfsdf
+                {item.name_pashto}
               </Text>
             </View>
             <Ionicons name="bookmark-outline" size={20} color="#16a34a" />
