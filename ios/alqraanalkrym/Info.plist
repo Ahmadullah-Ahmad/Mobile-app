@@ -51,6 +51,8 @@
     </array>
     <key>RCTNewArchEnabled</key>
     <true/>
+    <key>RCTRootViewBackgroundColor</key>
+    <integer>4294374377</integer>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>
