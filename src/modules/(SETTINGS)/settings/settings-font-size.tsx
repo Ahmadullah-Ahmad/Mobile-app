@@ -60,7 +60,7 @@ export default function SettingsFontSize() {
           variant="quran"
           size={fontSize + 4}
           lineHeight={2.1}
-          color={palette.accentText}
+          color={palette.goldText}
           align="center"
           style={{ marginBottom: 8 }}
         >

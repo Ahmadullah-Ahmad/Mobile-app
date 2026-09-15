@@ -14,7 +14,7 @@ export default function BismillahBanner({ size = 26 }: { size?: number }) {
         variant="quran"
         size={size}
         lineHeight={2.1}
-        color={palette.accentText}
+        color={palette.goldText}
         align="center"
       >
         {BISMILLAH_TEXT}

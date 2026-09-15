@@ -1,68 +1,90 @@
-const ACCENT = "#c67139";
-const ACCENT_SOFT = "#ffe1d0";
-const ACCENT_BORDER = "#f6a06b";
-const ACCENT_TEXT = "#8c491a";
-const ACCENT_STRONG = "#643312";
-const SAGE = "#728157";
-const SAGE_SOFT = "#e1eecc";
-const SAGE_STRONG = "#3d472b";
-const CREAM = "#f5ead8";
-
-const shared = {
-  accent: ACCENT,
-  onAccent: CREAM,
-  accentSoft: ACCENT_SOFT,
-  accentBorder: ACCENT_BORDER,
-  accentText: ACCENT_TEXT,
-  accentStrong: ACCENT_STRONG,
-  sage: SAGE,
-  sageSoft: SAGE_SOFT,
-  sageStrong: SAGE_STRONG,
-  heroTrack: "rgba(39, 46, 27, 0.16)",
-  heroBlob: "rgba(114, 129, 87, 0.22)",
-  backdrop: "rgba(46, 43, 37, 0.45)",
-  shadow: "#2e2b25",
+// Brand colours from the app icon: deep green background and gold lettering.
+export const BRAND: { green: string; gold: string; ivory: string } = {
+  green: "#0a3c23",
+  gold: "#d4af37",
+  ivory: "#f6f3e9",
 };
 
-export const PALETTE = {
-  light: {
-    ...shared,
-    ground: CREAM,
-    panel: "#ebddc5",
-    ink: "#201e1d",
-    ink2: "rgba(32, 30, 29, 0.6)",
-    edge: "rgba(32, 30, 29, 0.1)",
-    heroBg: "#f0fae1",
-    heroInk: "#272e1b",
-    heroInk2: SAGE_STRONG,
-    chipOff: "rgba(32, 30, 29, 0.65)",
-    tabOff: "rgba(32, 30, 29, 0.45)",
-    juzBadge: CREAM,
-    bookmarkOffBg: "#eee7db",
-    bookmarkOffInk: "#82796a",
-    optionBorder: "rgba(32, 30, 29, 0.14)",
-    themeOffBg: "#ebddc5",
-    themeOffInk: "#201e1d",
-  },
-  dark: {
-    ...shared,
-    ground: "#272e1b",
-    panel: "rgba(249, 244, 237, 0.1)",
-    ink: "#f9f4ed",
-    ink2: "rgba(249, 244, 237, 0.72)",
-    edge: "rgba(249, 244, 237, 0.18)",
-    heroBg: "rgba(114, 129, 87, 0.3)",
-    heroInk: "#f9f4ed",
-    heroInk2: SAGE_SOFT,
-    chipOff: "rgba(249, 244, 237, 0.72)",
-    tabOff: "rgba(249, 244, 237, 0.55)",
-    juzBadge: "rgba(249, 244, 237, 0.16)",
-    bookmarkOffBg: "#474238",
-    bookmarkOffInk: "#eee7db",
-    optionBorder: "rgba(249, 244, 237, 0.22)",
-    themeOffBg: "rgba(249, 244, 237, 0.1)",
-    themeOffInk: "#f9f4ed",
-  },
+const light = {
+  ground: BRAND.ivory,
+  panel: "#e7e9dd",
+  ink: "#13241a",
+  ink2: "rgba(19, 36, 26, 0.62)",
+  edge: "rgba(19, 36, 26, 0.1)",
+
+  accent: BRAND.green,
+  onAccent: BRAND.ivory,
+  accentSoft: "#d9e7dd",
+  accentBorder: "#7fa58c",
+  accentText: BRAND.green,
+  accentStrong: BRAND.green,
+
+  gold: "#b8922a",
+  goldText: "#9c7a1c",
+
+  secondary: BRAND.gold,
+  secondarySoft: "#f2e8c4",
+  secondaryStrong: "#6f5510",
+
+  heroBg: "#e2ece3",
+  heroInk: BRAND.green,
+  heroInk2: "#2f5a40",
+  heroTrack: "rgba(10, 60, 35, 0.14)",
+  heroBlob: "rgba(10, 60, 35, 0.08)",
+
+  chipOff: "rgba(19, 36, 26, 0.65)",
+  tabOff: "rgba(19, 36, 26, 0.45)",
+  juzBadge: BRAND.ivory,
+  bookmarkOffBg: "#e1e4d7",
+  bookmarkOffInk: "#6b7a6f",
+  optionBorder: "rgba(19, 36, 26, 0.14)",
+  themeOffBg: "#e7e9dd",
+  themeOffInk: "#13241a",
+
+  backdrop: "rgba(6, 24, 14, 0.45)",
+  shadow: "#06180e",
 };
 
-export type Palette = typeof PALETTE.light;
+export type Palette = typeof light;
+
+const dark: Palette = {
+  ground: BRAND.green,
+  panel: "rgba(246, 243, 233, 0.08)",
+  ink: BRAND.ivory,
+  ink2: "rgba(246, 243, 233, 0.72)",
+  edge: "rgba(246, 243, 233, 0.16)",
+
+  accent: BRAND.gold,
+  onAccent: BRAND.green,
+  accentSoft: "rgba(212, 175, 55, 0.22)",
+  accentBorder: BRAND.gold,
+  accentText: "#e6c65c",
+  accentStrong: "#e6c65c",
+
+  gold: BRAND.gold,
+  goldText: "#e0bf52",
+
+  secondary: BRAND.gold,
+  secondarySoft: "rgba(246, 243, 233, 0.14)",
+  secondaryStrong: BRAND.ivory,
+
+  heroBg: "rgba(246, 243, 233, 0.08)",
+  heroInk: BRAND.ivory,
+  heroInk2: "#e0bf52",
+  heroTrack: "rgba(246, 243, 233, 0.16)",
+  heroBlob: "rgba(212, 175, 55, 0.12)",
+
+  chipOff: "rgba(246, 243, 233, 0.72)",
+  tabOff: "rgba(246, 243, 233, 0.55)",
+  juzBadge: "rgba(246, 243, 233, 0.14)",
+  bookmarkOffBg: "rgba(246, 243, 233, 0.12)",
+  bookmarkOffInk: "#e5e2d6",
+  optionBorder: "rgba(246, 243, 233, 0.22)",
+  themeOffBg: "rgba(246, 243, 233, 0.1)",
+  themeOffInk: BRAND.ivory,
+
+  backdrop: "rgba(3, 16, 9, 0.55)",
+  shadow: "#020a06",
+};
+
+export const PALETTE = { light, dark };

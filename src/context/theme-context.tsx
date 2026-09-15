@@ -1,9 +1,14 @@
 import { useColorScheme as useNativewindColorScheme } from 'nativewind';
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useColorScheme as useNativeColorScheme } from 'react-native';
+import { loadSetting, peekSetting, saveSetting } from '@/lib/settings';
 import { themes } from '@/lib/themes';
 
 type ThemeType = 'light' | 'dark';
+
+const THEME_SETTING_KEY = 'theme';
+
+const isThemeType = (value: unknown): value is ThemeType => value === 'light' || value === 'dark';
 
 interface ThemeContextType {
     theme: ThemeType;
@@ -21,9 +26,26 @@ export function ThemeProvider({
     defaultTheme?: 'light' | 'dark' | 'system';
 }) {
     const systemColorScheme = useNativeColorScheme() as ThemeType || 'light';
-    const [theme, setTheme] = useState<ThemeType>(
-        defaultTheme === 'system' ? systemColorScheme : defaultTheme as ThemeType
-    );
+    const fallbackTheme = defaultTheme === 'system' ? systemColorScheme : defaultTheme;
+
+    // The settings cache is filled before the first screen renders, so a saved choice applies immediately.
+    const [theme, setThemeState] = useState<ThemeType>(() => {
+        const saved = peekSetting<unknown>(THEME_SETTING_KEY);
+        return isThemeType(saved) ? saved : fallbackTheme;
+    });
+
+    useEffect(() => {
+        if (peekSetting(THEME_SETTING_KEY) !== undefined) return;
+        loadSetting<unknown>(THEME_SETTING_KEY).then((saved) => {
+            if (isThemeType(saved)) setThemeState(saved);
+        });
+    }, []);
+
+    const setTheme = useCallback((next: ThemeType) => {
+        setThemeState(next);
+        saveSetting(THEME_SETTING_KEY, next);
+    }, []);
+
     const { colorScheme, setColorScheme } = useNativewindColorScheme();
 
     useEffect(() => {
@@ -35,7 +57,7 @@ export function ThemeProvider({
 
     const value = useMemo(
         () => ({ theme, setTheme, activeTheme }),
-        [theme, activeTheme]
+        [theme, setTheme, activeTheme]
     );
 
     return (

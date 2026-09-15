@@ -38,7 +38,7 @@ export default function ConfirmDialog({
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{message}</AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
+        <AlertDialogFooter className="min-w-full">
           <AlertDialogCancel>
             <Button variant="outline">
               <Text className="text-foreground">{cancelLabel}</Text>

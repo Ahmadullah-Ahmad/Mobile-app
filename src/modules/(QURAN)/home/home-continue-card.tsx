@@ -70,7 +70,7 @@ export default function HomeContinueCard({ reading }: { reading: ContinueReading
             width: `${progress}%`,
             height: "100%",
             borderRadius: 999,
-            backgroundColor: palette.sage,
+            backgroundColor: palette.secondary,
           }}
         />
       </View>

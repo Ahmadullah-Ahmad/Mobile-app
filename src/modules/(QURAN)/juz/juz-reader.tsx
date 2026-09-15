@@ -9,6 +9,7 @@ import { useTranslationLang } from "@/hooks/use-translation-lang";
 import { VERSES_PER_PAGE } from "@/lib/constants";
 import { chunk } from "@/lib/utils";
 import BookPager from "@/UI/book-pager";
+import PageEnter from "@/UI/page-enter";
 
 import { useBookmarkedVerses, useToggleBookmark } from "../bookmarks/bookmarks-hooks";
 import JuzBookPage from "./juz-book-page";
@@ -42,23 +43,25 @@ export default function JuzReader({ juzNumber }: { juzNumber: number }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: palette.ground, paddingTop: insets.top + 4 }}>
-      <BookPager
-        pages={pages}
-        initialPage={initialPage}
-        onPageChange={(_, page) =>
-          saveLastRead(page[0].surah_id, page[0].verse_number, juzNumber)
-        }
-        renderPage={(page) => (
-          <JuzBookPage
-            verses={page}
-            juzNumber={juzNumber}
-            lang={lang}
-            fontSize={fontSize}
-            bookmarked={bookmarked}
-            onToggleBookmark={toggleEntry}
-          />
-        )}
-      />
+      <PageEnter style={{ flex: 1 }}>
+        <BookPager
+          pages={pages}
+          initialPage={initialPage}
+          onPageChange={(_, page) =>
+            saveLastRead(page[0].surah_id, page[0].verse_number, juzNumber)
+          }
+          renderPage={(page) => (
+            <JuzBookPage
+              verses={page}
+              juzNumber={juzNumber}
+              lang={lang}
+              fontSize={fontSize}
+              bookmarked={bookmarked}
+              onToggleBookmark={toggleEntry}
+            />
+          )}
+        />
+      </PageEnter>
     </View>
   );
 }

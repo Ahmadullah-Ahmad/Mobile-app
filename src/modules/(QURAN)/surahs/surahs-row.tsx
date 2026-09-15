@@ -66,10 +66,10 @@ export default function SurahsRow({ surah, variant = "full", onPress }: SurahsRo
                 paddingVertical: 2,
                 paddingHorizontal: 9,
                 borderRadius: 999,
-                backgroundColor: meccan ? palette.accentSoft : palette.sageSoft,
+                backgroundColor: meccan ? palette.accentSoft : palette.secondarySoft,
               }}
             >
-              <AppText size={11} color={meccan ? palette.accentStrong : palette.sageStrong}>
+              <AppText size={11} color={meccan ? palette.accentStrong : palette.secondaryStrong}>
                 {place}
               </AppText>
             </View>

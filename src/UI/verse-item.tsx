@@ -90,7 +90,7 @@ function VerseItem({
       <Pressable onLongPress={onLongPress} style={{ flex: 1, minWidth: 0 }}>
         <AppText variant="quran" size={fontSize + 6} lineHeight={2} align="right">
           {verse.arabic}{" "}
-          <Text style={{ color: palette.accent }}>
+          <Text style={{ color: palette.gold }}>
             ﴿{toArabicNumeral(verse.verse_number)}﴾
           </Text>
         </AppText>

@@ -33,7 +33,7 @@ export default function SectionHeader({
         accessibilityRole="link"
         style={{ minHeight: 44, marginVertical: -10, marginHorizontal: -6, paddingHorizontal: 6, justifyContent: "center" }}
       >
-        <AppText size={13} color={palette.accentText}>
+        <AppText size={13} color={palette.accentText} style={{ textDecorationLine: "underline" }}>
           {actionLabel}
         </AppText>
       </Pressable>

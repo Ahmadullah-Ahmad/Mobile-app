@@ -12,6 +12,7 @@ import { chunk } from "@/lib/utils";
 import BookPageFrame from "@/UI/book-page-frame";
 import BookPager from "@/UI/book-pager";
 import EmptyDataComponent from "@/UI/empty-data-component";
+import PageEnter from "@/UI/page-enter";
 
 import { useBookmarkedVerses, useToggleBookmark } from "../bookmarks/bookmarks-hooks";
 import SurahsBookPage from "./surahs-book-page";
@@ -53,35 +54,37 @@ export default function SurahsReader({ surahNumber, initialVerse }: SurahsReader
 
   return (
     <View style={{ flex: 1, backgroundColor: palette.ground, paddingTop: insets.top + 4 }}>
-      {pages.length === 0 ? (
-        <View style={{ flex: 1, paddingHorizontal: 14, paddingBottom: 10 }}>
-          <BookPageFrame
-            startLabel=""
-            title={surah.name_arabic}
-            subtitle={t(surah.revelation_type)}
-            endLabel=""
-          >
-            <EmptyDataComponent icon="book" title={t("noTranslation")} />
-          </BookPageFrame>
-        </View>
-      ) : (
-        <BookPager
-          pages={pages}
-          initialPage={initialPage}
-          onPageChange={(_, page) => saveLastRead(surah.id, page[0].verse_number)}
-          renderPage={(page, index) => (
-            <SurahsBookPage
-              verses={page}
-              surah={surah}
-              isFirstPage={index === 0}
-              lang={lang}
-              fontSize={fontSize}
-              bookmarked={bookmarked}
-              onToggleBookmark={toggleEntry}
-            />
-          )}
-        />
-      )}
+      <PageEnter style={{ flex: 1 }}>
+        {pages.length === 0 ? (
+          <View style={{ flex: 1, paddingHorizontal: 14, paddingBottom: 10 }}>
+            <BookPageFrame
+              startLabel=""
+              title={surah.name_arabic}
+              subtitle={t(surah.revelation_type)}
+              endLabel=""
+            >
+              <EmptyDataComponent icon="book" title={t("noTranslation")} />
+            </BookPageFrame>
+          </View>
+        ) : (
+          <BookPager
+            pages={pages}
+            initialPage={initialPage}
+            onPageChange={(_, page) => saveLastRead(surah.id, page[0].verse_number)}
+            renderPage={(page, index) => (
+              <SurahsBookPage
+                verses={page}
+                surah={surah}
+                isFirstPage={index === 0}
+                lang={lang}
+                fontSize={fontSize}
+                bookmarked={bookmarked}
+                onToggleBookmark={toggleEntry}
+              />
+            )}
+          />
+        )}
+      </PageEnter>
     </View>
   );
 }
