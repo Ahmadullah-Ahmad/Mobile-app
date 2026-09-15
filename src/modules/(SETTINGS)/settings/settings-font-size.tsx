@@ -1,76 +1,74 @@
-import { Ionicons } from "@expo/vector-icons";
-import { Pressable, Text, View } from "react-native";
+import { View } from "react-native";
 
-import { useTheme } from "@/context/theme-context";
 import { useSharedUiLang } from "@/context/ui-lang-context";
 import { MAX_FONT_SIZE, MIN_FONT_SIZE, useFontSize } from "@/hooks/use-font-size";
+import { usePalette } from "@/hooks/use-palette";
+import { BISMILLAH_TEXT } from "@/lib/constants";
+import AppText from "@/UI/app-text";
+import IconButton from "@/UI/icon-button";
 
-import { PREVIEW_ARABIC, PREVIEW_TRANSLATION } from "./settings-config";
-
-function StepButton({
-  icon,
-  onPress,
-  disabled,
-}: {
-  icon: "add" | "remove";
-  onPress: () => void;
-  disabled: boolean;
-}) {
-  const { theme } = useTheme();
-  return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      className="w-11 h-11 rounded-full bg-muted items-center justify-center active:opacity-70"
-      style={{ opacity: disabled ? 0.4 : 1 }}
-    >
-      <Ionicons name={icon} size={22} color={theme === "light" ? "black" : "gray"} />
-    </Pressable>
-  );
-}
+import { PREVIEW_TRANSLATION } from "./settings-config";
 
 export default function SettingsFontSize() {
-  const { t } = useSharedUiLang();
+  const palette = usePalette();
+  const { t, formatNumber } = useSharedUiLang();
   const { fontSize, increase, decrease } = useFontSize();
 
   return (
     <>
-      <View className="bg-card border border-border rounded-2xl px-5 py-4 flex-row items-center justify-between">
-        <StepButton icon="remove" onPress={decrease} disabled={fontSize <= MIN_FONT_SIZE} />
-        <View className="items-center">
-          <Text className="text-foreground text-2xl font-semibold">{fontSize}</Text>
-          <Text className="text-muted-foreground text-xs">
-            {MIN_FONT_SIZE}–{MAX_FONT_SIZE}
-          </Text>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          backgroundColor: palette.panel,
+          borderRadius: 30,
+          paddingVertical: 14,
+          paddingHorizontal: 18,
+          marginBottom: 12,
+        }}
+      >
+        <IconButton
+          icon="minus"
+          iconSize={20}
+          onPress={decrease}
+          accessibilityLabel={t("decrease")}
+          backgroundColor={palette.ground}
+        />
+        <View style={{ alignItems: "center" }}>
+          <AppText variant="heading" size={24} lineHeight={1.3}>
+            {formatNumber(fontSize)}
+          </AppText>
+          <AppText size={11.5} color={palette.ink2}>
+            {`${formatNumber(MIN_FONT_SIZE)}–${formatNumber(MAX_FONT_SIZE)}`}
+          </AppText>
         </View>
-        <StepButton icon="add" onPress={increase} disabled={fontSize >= MAX_FONT_SIZE} />
+        <IconButton
+          icon="plus"
+          iconSize={20}
+          onPress={increase}
+          accessibilityLabel={t("increase")}
+          backgroundColor={palette.ground}
+        />
       </View>
 
-      <View className="bg-card border border-border rounded-2xl px-4 py-4 mt-2">
-        <Text className="text-muted-foreground text-xs mb-2">{t("preview")}</Text>
-        <Text
-          style={{
-            fontFamily: "AmiriQuran",
-            fontSize: fontSize + 4,
-            lineHeight: (fontSize + 4) * 2.2,
-            textAlign: "center",
-            writingDirection: "rtl",
-          }}
-          className="text-foreground"
+      <View style={{ backgroundColor: palette.panel, borderRadius: 30, padding: 18 }}>
+        <AppText size={11.5} color={palette.ink2} style={{ marginBottom: 10 }}>
+          {t("preview")}
+        </AppText>
+        <AppText
+          variant="quran"
+          size={fontSize + 4}
+          lineHeight={2.1}
+          color={palette.accentText}
+          align="center"
+          style={{ marginBottom: 8 }}
         >
-          {PREVIEW_ARABIC}
-        </Text>
-        <Text
-          style={{
-            fontSize: fontSize - 2,
-            lineHeight: (fontSize - 2) * 1.8,
-            textAlign: "right",
-            writingDirection: "rtl",
-          }}
-          className="text-muted-foreground mt-2"
-        >
+          {BISMILLAH_TEXT}
+        </AppText>
+        <AppText variant="naskh" size={fontSize - 2} lineHeight={1.8} color={palette.ink2} align="right">
           {PREVIEW_TRANSLATION}
-        </Text>
+        </AppText>
       </View>
     </>
   );

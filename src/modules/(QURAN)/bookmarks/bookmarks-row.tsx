@@ -1,18 +1,12 @@
-import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
 import { useSharedUiLang } from "@/context/ui-lang-context";
-import { useDirection } from "@/hooks/use-direction";
-import { ACCENT_COLOR } from "@/lib/constants";
-import ConfirmDialog from "@/UI/confirm-dialog";
+import { usePalette } from "@/hooks/use-palette";
+import { SURAH_PREFIX } from "@/lib/constants";
+import AppText from "@/UI/app-text";
+import CardRow from "@/UI/card-row";
+import Icon from "@/UI/icon";
+import IconButton from "@/UI/icon-button";
 
 import type { Bookmark } from "./bookmarks-config";
 
@@ -22,73 +16,46 @@ interface BookmarksRowProps {
   onDelete: (id: number) => void;
 }
 
-export default function BookmarksRow({
-  bookmark,
-  onOpen,
-  onDelete,
-}: BookmarksRowProps) {
-  const { t } = useSharedUiLang();
-  const { isRTL, textAlign } = useDirection();
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const icon = <Ionicons name="bookmark" size={20} color={ACCENT_COLOR} />;
+export default function BookmarksRow({ bookmark, onOpen, onDelete }: BookmarksRowProps) {
+  const palette = usePalette();
+  const { t, formatNumber } = useSharedUiLang();
 
   return (
-    <>
-      <ContextMenu>
-        <ContextMenuTrigger
-          onPress={() => onOpen(bookmark)}
-          className="mx-2 mb-3 flex-row items-center rounded-2xl border border-border bg-card px-4 py-3 gap-x-3"
-        >
-          {isRTL && icon}
+    <CardRow
+      radius={28}
+      paddingVertical={14}
+      paddingHorizontal={16}
+      gap={13}
+      onPress={() => onOpen(bookmark)}
+    >
+      <View
+        style={{
+          width: 38,
+          height: 38,
+          borderRadius: 19,
+          backgroundColor: palette.accentSoft,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Icon name="bookmark" size={18} color={palette.accentStrong} fill={palette.accentStrong} />
+      </View>
 
-          <View className="flex-1">
-            <Text
-              style={{ writingDirection: "rtl", textAlign }}
-              className="text-foreground text-base font-semibold"
-            >
-              {t("surahTab")} {bookmark.surah_id} • {t("ayat")}{" "}
-              {bookmark.verse_number}
-            </Text>
-            {bookmark.note ? (
-              <Text
-                style={{ writingDirection: "rtl", textAlign }}
-                className="text-muted-foreground text-sm mt-0.5"
-              >
-                {bookmark.note}
-              </Text>
-            ) : null}
-            <Text className="text-muted-foreground text-xs mt-1">
-              {bookmark.created_at}
-            </Text>
-          </View>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <AppText variant="amiri" size={18} align="start">
+          {`${SURAH_PREFIX} ${bookmark.surah_name_arabic}`}
+        </AppText>
+        <AppText size={12} color={palette.ink2} align="start" style={{ marginTop: 2 }}>
+          {`${t("ayah")} ${formatNumber(bookmark.verse_number)} · ${t("juzNumber", { number: bookmark.juz_number ?? 1 })}`}
+        </AppText>
+      </View>
 
-          {!isRTL && icon}
-        </ContextMenuTrigger>
-
-        <ContextMenuContent align={isRTL ? "start" : "end"}>
-          <ContextMenuItem icon="book-outline" onSelect={() => onOpen(bookmark)}>
-            {t("openSurah")}
-          </ContextMenuItem>
-          <ContextMenuSeparator />
-          <ContextMenuItem
-            icon="trash-outline"
-            destructive
-            onSelect={() => setConfirmOpen(true)}
-          >
-            {t("deleteBookmark")}
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
-
-      <ConfirmDialog
-        open={confirmOpen}
-        onOpenChange={setConfirmOpen}
-        title={t("confirmDelete")}
-        message={t("confirmDeleteMsg")}
-        confirmLabel={t("delete")}
-        cancelLabel={t("cancel")}
-        onConfirm={() => onDelete(bookmark.id)}
+      <IconButton
+        icon="trash"
+        onPress={() => onDelete(bookmark.id)}
+        accessibilityLabel={t("delete")}
+        color={palette.ink2}
       />
-    </>
+    </CardRow>
   );
 }

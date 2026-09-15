@@ -1,11 +1,4 @@
-import type { Juz, JuzSurahGroup, JuzVerse } from "./juz-config";
-
-export function filterJuz(juzList: Juz[], query: string): Juz[] {
-  if (!query.trim()) return juzList;
-  return juzList.filter(
-    (j) => j.name_arabic.includes(query) || String(j.number).includes(query)
-  );
-}
+import type { JuzSurahGroup, JuzVerse } from "./juz-config";
 
 export function groupVersesBySurah(verses: JuzVerse[]): JuzSurahGroup[] {
   const groups: JuzSurahGroup[] = [];

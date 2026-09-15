@@ -40,18 +40,12 @@ export default function ConfirmDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>
-            <Button variant="outline" onPress={() => onOpenChange(false)}>
-              <Text>{cancelLabel}</Text>
+            <Button variant="outline">
+              <Text className="text-foreground">{cancelLabel}</Text>
             </Button>
           </AlertDialogCancel>
           <AlertDialogAction>
-            <Button
-              variant="destructive"
-              onPress={() => {
-                onOpenChange(false);
-                onConfirm();
-              }}
-            >
+            <Button variant="destructive" onPress={onConfirm}>
               <Text className="text-destructive-foreground">{confirmLabel}</Text>
             </Button>
           </AlertDialogAction>

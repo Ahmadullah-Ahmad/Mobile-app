@@ -1,45 +1,54 @@
-import { useCallback, useMemo, useState } from "react";
-import { FlatList } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useCallback } from "react";
+import { FlatList, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import View from "@/components/ui/view";
 import { useSharedUiLang } from "@/context/ui-lang-context";
+import { useDirection } from "@/hooks/use-direction";
+import { usePalette } from "@/hooks/use-palette";
 import { navigate, ROUTES } from "@/lib/routes";
-import ScreenHeader from "@/UI/screen-header";
-import SearchInput from "@/UI/search-input";
+import ScreenHeading from "@/UI/screen-heading";
+import ScreenTransition from "@/UI/screen-transition";
+import TranslationTabs from "@/UI/translation-tabs";
 
-import JuzCard from "./juz-card";
+import { useContinueReading } from "../home/home-hooks";
 import type { Juz } from "./juz-config";
-import { filterJuz } from "./juz-filter";
 import { useGetAllJuz } from "./juz-hooks";
+import JuzRow from "./juz-row";
 
 export default function JuzList() {
+  const palette = usePalette();
+  const insets = useSafeAreaInsets();
   const { t } = useSharedUiLang();
+  const { writingDirection } = useDirection();
   const { juzList } = useGetAllJuz();
-  const [query, setQuery] = useState("");
+  const { juzNumber: currentJuz } = useContinueReading();
 
-  const filtered = useMemo(() => filterJuz(juzList, query), [juzList, query]);
   const openJuz = useCallback((juz: Juz) => navigate(ROUTES.juz(juz.number)), []);
 
   return (
-    <View className="flex-1">
-      <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
-        <ScreenHeader title={t("juzListTitle")} subtitle={t("juzListSubtitle")} />
-        <FlatList
-          data={filtered}
-          keyExtractor={(j) => String(j.number)}
-          renderItem={({ item }) => <JuzCard juz={item} onPress={openJuz} />}
-          ListHeaderComponent={
-            <View className="bg-background pt-3 px-2">
-              <SearchInput value={query} onChange={setQuery} placeholder={t("search")} />
-            </View>
-          }
-          contentContainerStyle={{ padding: 10, gap: 8 }}
-          showsVerticalScrollIndicator={false}
-          initialNumToRender={30}
-          style={{ flex: 1 }}
-        />
-      </SafeAreaView>
-    </View>
+    <ScreenTransition
+      style={{
+        flex: 1,
+        backgroundColor: palette.ground,
+        paddingTop: insets.top + 4,
+        direction: writingDirection,
+      }}
+    >
+      <View style={{ paddingHorizontal: 22, paddingBottom: 14 }}>
+        <ScreenHeading title={t("juzListTitle")} subtitle={t("juzListSubtitle")} />
+        <TranslationTabs style={{ marginTop: 10 }} />
+      </View>
+
+      <FlatList
+        data={juzList}
+        keyExtractor={(juz) => String(juz.number)}
+        renderItem={({ item }) => (
+          <JuzRow juz={item} active={item.number === currentJuz} onPress={openJuz} />
+        )}
+        contentContainerStyle={{ paddingTop: 4, paddingHorizontal: 22, paddingBottom: 16, gap: 8 }}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={15}
+      />
+    </ScreenTransition>
   );
 }

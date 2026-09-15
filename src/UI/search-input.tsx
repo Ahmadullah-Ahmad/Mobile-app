@@ -1,49 +1,64 @@
-import { Ionicons } from "@expo/vector-icons";
-import { Pressable } from "react-native";
+import { View, type StyleProp, type ViewStyle } from "react-native";
 
 import { Input } from "@/components/ui/input";
-import View from "@/components/ui/view";
-import { useIconColors } from "@/hooks/use-icon-colors";
+import { useSharedUiLang } from "@/context/ui-lang-context";
 import { useDirection } from "@/hooks/use-direction";
+import { usePalette } from "@/hooks/use-palette";
+import { FONTS } from "@/lib/fonts";
+
+import Icon from "./icon";
 
 interface SearchInputProps {
   value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  style?: StyleProp<ViewStyle>;
 }
 
 export default function SearchInput({
   value,
   onChange,
-  placeholder = "لټون...",
+  placeholder,
+  style,
 }: SearchInputProps) {
-  const { muted } = useIconColors();
-  const { flexRow, writingDirection, textAlign, isRTL } = useDirection();
+  const palette = usePalette();
+  const { isRTL } = useSharedUiLang();
+  const { textAlign, writingDirection } = useDirection();
 
   return (
-    <View style={{ flexDirection: flexRow }} className="mx-4 mb-3 relative items-center gap-2 h-12 px-3 rounded-xl bg-muted/60 border border-border">
+    <View
+      style={[
+        {
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 10,
+          backgroundColor: palette.panel,
+          borderRadius: 999,
+          paddingVertical: 10,
+          paddingHorizontal: 16,
+        },
+        style,
+      ]}
+    >
+      <Icon name="search" size={18} color={palette.ink2} />
       <Input
         value={value}
         onChangeText={onChange}
         placeholder={placeholder}
-        placeholderTextColor={muted}
-        className="flex-1 h-12 border-0 bg-transparent shadow-none py-3 ios:shadow-none"
-        style={{
-          paddingHorizontal: 12,
-          writingDirection,
-          textAlign,
-        }}
+        placeholderTextColor={palette.ink2}
+        accessibilityLabel={placeholder}
         returnKeyType="search"
+        className="h-auto flex-1 border-0 bg-transparent px-0 shadow-none ios:shadow-none android:elevation-0"
+        style={{
+          minWidth: 0,
+          paddingVertical: 0,
+          fontSize: 15,
+          color: palette.ink,
+          fontFamily: isRTL ? FONTS.naskh : FONTS.latin,
+          textAlign,
+          writingDirection,
+        }}
       />
-      {value.length > 0 ? (
-        <Pressable
-          hitSlop={8}
-          onPress={() => onChange("")}
-          style={{ position: "absolute", [isRTL ? "right" : "left"]: 24 }}
-        >
-          <Ionicons name="close-circle" size={18} color={muted} />
-        </Pressable>
-      ) : null}
     </View>
   );
 }

@@ -48,36 +48,36 @@ anything used by more than one feature lives in a shared folder.
 ```
 app/                               # Routes only (expo-router); each file renders one module view
   _layout.tsx                      # Fonts, DB version check, AppProviders, Stack
-  (GENERAL)/index.tsx              # /            -> home-view
-  (SETTINGS)/settings.tsx          # /settings    -> settings-view
-  (QURAN)/quran/
-    _layout.tsx                    # Quran stack animation
-    index.tsx                      # /quran       -> surahs-list
-    [id].tsx                       # /quran/:id   -> surahs-reader
-    para.tsx                       # /quran/para  -> juz-list
-    juz/[number].tsx               # /quran/juz/:number -> juz-reader
-    bookmarks.tsx                  # /quran/bookmarks   -> bookmarks-view
+  (QURAN)/
+    _layout.tsx                    # Tabs + five-tab bar + bookmarks/settings drawers
+    index.tsx                      # /            -> home-view
+    quran/index.tsx                # /quran       -> surahs-list
+    quran/para.tsx                 # /quran/para  -> juz-list
+    quran/[id].tsx                 # /quran/:id?verse=n -> surahs-reader
+    quran/juz/[number].tsx         # /quran/juz/:number -> juz-reader
 
 src/
   modules/                         # One folder per feature, files prefixed with the feature name
-    (GENERAL)/home/                # home-view, home-config
-    (SETTINGS)/settings/           # settings-view, -section, -language-select, -theme-toggle, -font-size, -config
-    (QURAN)/surahs/                # surahs-list, -reader, -book-page, -card, -continue-reading, -hooks, -filter, -config
-    (QURAN)/juz/                   # juz-list, -reader, -book-page, -card, -surah-divider, -hooks, -filter, -config
-    (QURAN)/bookmarks/             # bookmarks-view, -row, -form, -hooks, -config
+    (GENERAL)/navigation/          # navigation-tab-bar, -sheets, -config
+    (QURAN)/home/                  # home-view, -continue-card, -juz-strip, -hooks, -config
+    (QURAN)/surahs/                # surahs-list, -row, -reader, -book-page, -hooks, -filter, -config
+    (QURAN)/juz/                   # juz-list, -row, -reader, -book-page, -surah-divider, -hooks, -filter, -config
+    (QURAN)/bookmarks/             # bookmarks-sheet, -row, -hooks, -config
     (QURAN)/search/                # search-hooks
-  UI/                              # App-level reusable components
-                                   #   book-pager, book-page-frame, verse-item, bismillah-banner,
-                                   #   screen-header, back-button, search-input, nav-card,
-                                   #   confirm-dialog, loading-spinner, empty-data-component, …
-  components/ui/                   # Primitives (Text, View, Dropdown, Drawer, …)
-  hooks/                           # Shared hooks
-                                   #   use-sync-query, use-mutation, use-persisted-setting,
-                                   #   use-last-read, use-translation-lang, use-font-size, use-direction
-  context/                         # app-providers, database-provider, theme-context, ui-lang-context
+    (SETTINGS)/settings/           # settings-sheet, -section, -language-options, -theme-toggle, -font-size, -config
+  UI/                              # Design components built on the Organic palette
+                                   #   app-text, icon, card-row, number-badge, pill-button, icon-button,
+                                   #   segmented-pills, section-header, screen-heading, screen-transition,
+                                   #   search-input, sheet-header, empty-data-component,
+                                   #   book-pager, book-page-frame, verse-item, bismillah-banner
+  components/ui/                   # Primitives (Drawer, Sheet, Input, Dropdown, …)
+  hooks/                           # use-sync-query, use-query-version, use-mutation, use-persisted-setting,
+                                   # use-last-read, use-translation-lang, use-font-size, use-direction, use-palette
+  context/                         # app-providers, database-provider, theme-context, ui-lang-context, sheet-context
   db/                              # client (Drizzle), schema, seed, sync-read, db-version
   i18n/                            # config, messages, use-ui-lang, locales/{ps,fa,en}.json
-  lib/                             # common-types, constants, routes, settings, themes, utils
+  lib/                             # palette, theme-tokens.json, themes, fonts, query-store, query-keys,
+                                   # common-types, constants, routes, settings, utils
 
 assets/
   db/app.db                        # Pre-seeded SQLite database (Arabic + Pashto + Dari)
@@ -92,8 +92,11 @@ drizzle.config.ts                  # Drizzle Kit config (schema, dialect, driver
 1. Create `src/modules/(GROUP)/<feature>/` with `<feature>-config.ts` for types and constants,
    `<feature>-hooks.ts` for data access, and `<feature>-view.tsx` for the screen.
 2. Read data with `useSyncQuery` when the screen needs it on first paint, and write with `useMutation`.
-3. Add a route file under `app/(GROUP)/` that only renders the view, and add its path to `src/lib/routes.ts`.
-4. Put a component in `src/UI/` only once a second feature needs it.
+   Pass the query keys a write affects (`src/lib/query-keys.ts`) so every mounted screen re-reads.
+3. Take colours from `usePalette()` and text styles from `AppText`; the Organic tokens live in
+   `src/lib/palette.ts` and `src/lib/theme-tokens.json` (shared with Tailwind).
+4. Add a route file under `app/(QURAN)/` that only renders the view, and add its path to `src/lib/routes.ts`.
+5. Compose primitives from `src/components/ui/` first; put a component in `src/UI/` only once a second feature needs it.
 
 ## Database
 

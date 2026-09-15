@@ -28,7 +28,8 @@ export function useGetJuzVerses(juzNumber: number) {
         : sqlite.getAllSync<JuzVerse>(
             `SELECT v.id, v.surah_id, v.verse_number, v.arabic, v.pashto, v.dari,
                     v.juz_number, s.number AS surah_number,
-                    s.name_arabic AS surah_name_arabic
+                    s.name_arabic AS surah_name_arabic,
+                    s.revelation_type AS surah_revelation_type
              FROM verses v
              JOIN surahs s ON s.id = v.surah_id
              WHERE v.juz_number = ?

@@ -1,106 +1,73 @@
 import type { ReactNode } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 
-import Text from "@/components/ui/text";
-import View from "@/components/ui/view";
 import { useDirection } from "@/hooks/use-direction";
-import { toArabicNumeral } from "@/lib/utils";
+import { usePalette } from "@/hooks/use-palette";
+
+import AppText from "./app-text";
 
 interface BookPageFrameProps {
+  startLabel: string;
   title: string;
-  meta: string;
-  pageIndex: number;
-  totalPages: number;
+  subtitle: string;
+  endLabel: string;
   children: ReactNode;
 }
 
 export default function BookPageFrame({
+  startLabel,
   title,
-  meta,
-  pageIndex,
-  totalPages,
+  subtitle,
+  endLabel,
   children,
 }: BookPageFrameProps) {
+  const palette = usePalette();
   const { writingDirection } = useDirection();
 
   return (
-    <View style={styles.frame}>
-      <View style={styles.frameInner}>
-        <View style={[styles.header, { direction: writingDirection }]}>
-          <Text
-            style={{ fontFamily: "AmiriQuran", writingDirection, textAlign: "right" }}
-            className="text-foreground text-right mb-2"
-          >
+    <View style={[styles.page, { backgroundColor: palette.panel, direction: writingDirection }]}>
+      <View style={styles.header}>
+        <AppText size={12.5} color={palette.ink2} align="start" style={styles.side}>
+          {startLabel}
+        </AppText>
+        <View style={styles.center}>
+          <AppText variant="quran" size={18} lineHeight={1.8} align="center">
             {title}
-          </Text>
-          <Text style={{ writingDirection: "rtl" }} className="text-muted-foreground">
-            {meta}
-          </Text>
+          </AppText>
+          <AppText size={8} color={palette.ink2} align="center">
+            {subtitle}
+          </AppText>
         </View>
-        <View style={styles.rule} />
-
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.content}
-          style={styles.body}
-        >
-          {children}
-        </ScrollView>
-
-        <View style={styles.rule} />
-        <View style={styles.footer}>
-          <Text className="text-muted-foreground text-xs">
-            {pageIndex + 1} / {totalPages}
-          </Text>
-          <Text
-            style={{ fontFamily: "AmiriQuran", fontSize: 14 }}
-            className="text-foreground"
-          >
-            ﴾ {toArabicNumeral(pageIndex + 1)} ﴿
-          </Text>
-        </View>
+        <AppText size={12.5} color={palette.ink2} align="end" style={styles.side}>
+          {endLabel}
+        </AppText>
       </View>
+      <View style={[styles.rule, { backgroundColor: palette.edge }]} />
+
+      <ScrollView
+        style={styles.body}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        {children}
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  frame: {
-    flex: 1,
-    margin: 8,
-    borderWidth: 1.5,
-    borderColor: "rgba(22,101,52,0.55)",
-    borderRadius: 10,
-    padding: 4,
-  },
-  frameInner: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "rgba(22,101,52,0.35)",
-    borderRadius: 6,
-    overflow: "hidden",
-  },
+  page: { flex: 1, borderRadius: 10, overflow: "hidden" },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 14,
-    paddingTop: 10,
-    paddingBottom: 6,
-  },
-  rule: {
-    height: 1,
-    backgroundColor: "rgba(22,101,52,0.25)",
-    marginHorizontal: 10,
-  },
-  body: { flex: 1 },
-  content: { paddingTop: 4, paddingBottom: 24 },
-  footer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 14,
+    gap: 10,
     paddingTop: 8,
-    paddingBottom: 12,
+    paddingHorizontal: 20,
+    paddingBottom: 10,
   },
+  side: { flex: 1 },
+  center: { alignItems: "center" },
+  rule: { height: 1, marginHorizontal: 20 },
+  body: { flex: 1 },
+  content: { paddingTop: 14, paddingHorizontal: 20, paddingBottom: 18 },
 });

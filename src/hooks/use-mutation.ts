@@ -1,31 +1,28 @@
 import { useCallback, useState } from "react";
 
 import { useDb, type DB } from "@/db/client";
+import { invalidateQuery } from "@/lib/query-store";
 
-/**
- * Wraps a Drizzle write so a screen gets `mutate` plus a pending flag.
- *
- * Module hooks build their add/delete hooks on this, the same way the web
- * modules build theirs on a shared CRUD factory.
- *
- * @param write A stable, module-level function taking the DB first.
- */
 export function useMutation<TArgs extends unknown[], TResult>(
-  write: (db: DB, ...args: TArgs) => Promise<TResult>
+  write: (db: DB, ...args: TArgs) => Promise<TResult>,
+  invalidates: readonly string[] = []
 ) {
   const db = useDb();
   const [isPending, setIsPending] = useState(false);
+  const invalidateKey = invalidates.join("|");
 
   const mutate = useCallback(
     async (...args: TArgs): Promise<TResult> => {
       setIsPending(true);
       try {
-        return await write(db, ...args);
+        const result = await write(db, ...args);
+        invalidateKey.split("|").filter(Boolean).forEach(invalidateQuery);
+        return result;
       } finally {
         setIsPending(false);
       }
     },
-    [db, write]
+    [db, write, invalidateKey]
   );
 
   return { mutate, isPending };

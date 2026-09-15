@@ -1,46 +1,19 @@
-import { and, desc, eq } from "drizzle-orm";
-import { useCallback, useEffect, useState } from "react";
+import { and, eq } from "drizzle-orm";
+import { useMemo } from "react";
 
-import { useDb, type DB } from "@/db/client";
-import { bookmarks } from "@/db/schema";
+import type { DB } from "@/db/client";
+import { bookmarks as bookmarksTable } from "@/db/schema";
 import { useMutation } from "@/hooks/use-mutation";
+import { useQueryVersion } from "@/hooks/use-query-version";
+import { useSyncQuery } from "@/hooks/use-sync-query";
+import { QUERY_KEYS } from "@/lib/query-keys";
 
-import type { Bookmark } from "./bookmarks-config";
+import { bookmarkKey, type Bookmark } from "./bookmarks-config";
+
+const INVALIDATES = [QUERY_KEYS.BOOKMARKS];
 
 const sameVerse = (surahId: number, verseNumber: number) =>
-  and(eq(bookmarks.surahId, surahId), eq(bookmarks.verseNumber, verseNumber));
-
-async function getBookmarks(db: DB): Promise<Bookmark[]> {
-  const rows = await db
-    .select({
-      id: bookmarks.id,
-      surah_id: bookmarks.surahId,
-      verse_number: bookmarks.verseNumber,
-      note: bookmarks.note,
-      created_at: bookmarks.createdAt,
-    })
-    .from(bookmarks)
-    .orderBy(desc(bookmarks.createdAt));
-
-  return rows.map((r) => ({
-    ...r,
-    note: r.note ?? "",
-    created_at: r.created_at ?? "",
-  }));
-}
-
-async function isBookmarked(
-  db: DB,
-  surahId: number,
-  verseNumber: number
-): Promise<boolean> {
-  const rows = await db
-    .select({ id: bookmarks.id })
-    .from(bookmarks)
-    .where(sameVerse(surahId, verseNumber))
-    .limit(1);
-  return rows.length > 0;
-}
+  and(eq(bookmarksTable.surahId, surahId), eq(bookmarksTable.verseNumber, verseNumber));
 
 async function toggleBookmark(
   db: DB,
@@ -48,60 +21,69 @@ async function toggleBookmark(
   verseNumber: number,
   note = ""
 ): Promise<boolean> {
-  if (await isBookmarked(db, surahId, verseNumber)) {
-    await db.delete(bookmarks).where(sameVerse(surahId, verseNumber));
+  const existing = await db
+    .select({ id: bookmarksTable.id })
+    .from(bookmarksTable)
+    .where(sameVerse(surahId, verseNumber))
+    .limit(1);
+
+  if (existing.length > 0) {
+    await db.delete(bookmarksTable).where(sameVerse(surahId, verseNumber));
     return false;
   }
-  await db.insert(bookmarks).values({ surahId, verseNumber, note });
+  await db.insert(bookmarksTable).values({ surahId, verseNumber, note });
   return true;
 }
 
+async function addBookmark(db: DB, surahId: number, verseNumber: number): Promise<void> {
+  await db
+    .insert(bookmarksTable)
+    .values({ surahId, verseNumber, note: "" })
+    .onConflictDoNothing();
+}
+
 async function deleteBookmark(db: DB, id: number): Promise<void> {
-  await db.delete(bookmarks).where(eq(bookmarks.id, id));
+  await db.delete(bookmarksTable).where(eq(bookmarksTable.id, id));
 }
 
 export function useGetAllBookmarks() {
-  const db = useDb();
-  const [data, setData] = useState<Bookmark[]>([]);
-  const [loading, setLoading] = useState(true);
+  const version = useQueryVersion(QUERY_KEYS.BOOKMARKS);
+  const bookmarks = useSyncQuery(
+    "readBookmarks",
+    (sqlite) =>
+      sqlite.getAllSync<Bookmark>(
+        `SELECT b.id, b.surah_id, s.number AS surah_number, s.name_arabic AS surah_name_arabic,
+                b.verse_number, v.juz_number,
+                COALESCE(b.note, '') AS note, COALESCE(b.created_at, '') AS created_at
+         FROM bookmarks b
+         JOIN surahs s ON s.id = b.surah_id
+         LEFT JOIN verses v ON v.surah_id = b.surah_id AND v.verse_number = b.verse_number
+         ORDER BY b.created_at DESC, b.id DESC`
+      ),
+    [version]
+  );
+  return { bookmarks };
+}
 
-  const refresh = useCallback(() => {
-    getBookmarks(db)
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, [db]);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  return { bookmarks: data, loading, refresh };
+export function useBookmarkedVerses(): Set<string> {
+  const { bookmarks } = useGetAllBookmarks();
+  return useMemo(
+    () => new Set(bookmarks.map((b) => bookmarkKey(b.surah_id, b.verse_number))),
+    [bookmarks]
+  );
 }
 
 export function useToggleBookmark() {
-  const { mutate, isPending } = useMutation(toggleBookmark);
+  const { mutate, isPending } = useMutation(toggleBookmark, INVALIDATES);
   return { toggleEntry: mutate, isToggling: isPending };
 }
 
-export function useDeleteBookmark() {
-  const { mutate, isPending } = useMutation(deleteBookmark);
-  return { deleteEntry: mutate, isDeleting: isPending };
+export function useAddBookmark() {
+  const { mutate, isPending } = useMutation(addBookmark, INVALIDATES);
+  return { addEntry: mutate, isPending };
 }
 
-export function useIsBookmarked(surahId: number, verseNumber: number) {
-  const db = useDb();
-  const [bookmarked, setBookmarked] = useState(false);
-  const { toggleEntry } = useToggleBookmark();
-
-  useEffect(() => {
-    isBookmarked(db, surahId, verseNumber).then(setBookmarked);
-  }, [db, surahId, verseNumber]);
-
-  const toggle = useCallback(async () => {
-    const added = await toggleEntry(surahId, verseNumber);
-    setBookmarked(added);
-    return added;
-  }, [toggleEntry, surahId, verseNumber]);
-
-  return { bookmarked, toggle };
+export function useDeleteBookmark() {
+  const { mutate, isPending } = useMutation(deleteBookmark, INVALIDATES);
+  return { deleteEntry: mutate, isDeleting: isPending };
 }

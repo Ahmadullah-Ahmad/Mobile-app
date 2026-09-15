@@ -1,5 +1,4 @@
-import type { RevelationType, Verse } from "@/lib/common-types";
-import { BISMILLAH_TEXT } from "@/lib/constants";
+import type { RevelationType } from "@/lib/common-types";
 
 export interface Surah {
   id: number;
@@ -13,12 +12,7 @@ export interface Surah {
   has_content: boolean;
 }
 
-export const BISMILLAH_FALLBACK: Verse = {
-  id: 0,
-  surah_id: 0,
-  verse_number: 0,
-  arabic: BISMILLAH_TEXT,
-  pashto: "د اللهﷻ په نوم چې رحمت یې بې حده او رحم یې تلپاتې دی",
-  dari: "به نام خداوند بخشنده مهربان",
-  juz_number: null,
-};
+export const SURAH_ROW_VARIANTS = {
+  compact: { radius: 26, paddingVertical: 12, paddingHorizontal: 15, badge: 34, badgeFont: 15, name: 19 },
+  full: { radius: 28, paddingVertical: 13, paddingHorizontal: 16, badge: 38, badgeFont: 16, name: 20 },
+} as const;

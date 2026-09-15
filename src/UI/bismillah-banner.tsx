@@ -1,48 +1,24 @@
-import Text from "@/components/ui/text";
-import View from "@/components/ui/view";
+import { View } from "react-native";
 
-import type { TranslationLang, Verse } from "@/lib/common-types";
+import { usePalette } from "@/hooks/use-palette";
 import { BISMILLAH_TEXT } from "@/lib/constants";
 
-interface BismillahBannerProps {
-  verse?: Verse;
-  lang?: TranslationLang;
-}
+import AppText from "./app-text";
 
-export default function BismillahBanner({
-  verse,
-  lang = "none",
-}: BismillahBannerProps) {
-  const arabic = verse?.arabic ?? BISMILLAH_TEXT;
-  const showPashto =
-    (lang === "pashto" || lang === "both") && Boolean(verse?.pashto);
+export default function BismillahBanner({ size = 26 }: { size?: number }) {
+  const palette = usePalette();
 
   return (
-    <View className="mx-4 mt-4 mb-2 rounded-2xl bg-primary/5 border border-primary/20 px-4 py-4">
-      <Text
-        style={{
-          fontFamily: "AmiriQuran",
-          fontSize: 24,
-          lineHeight: 58,
-          textAlign: "center",
-          writingDirection: "rtl",
-        }}
+    <View style={{ alignItems: "center", paddingTop: 6, paddingBottom: 16 }}>
+      <AppText
+        variant="quran"
+        size={size}
+        lineHeight={2.1}
+        color={palette.accentText}
+        align="center"
       >
-        {arabic}
-      </Text>
-      {showPashto ? (
-        <Text
-          style={{
-            fontSize: 14,
-            lineHeight: 26,
-            textAlign: "right",
-            writingDirection: "rtl",
-          }}
-          className="text-muted-foreground mt-2"
-        >
-          {verse!.pashto}
-        </Text>
-      ) : null}
+        {BISMILLAH_TEXT}
+      </AppText>
     </View>
   );
 }

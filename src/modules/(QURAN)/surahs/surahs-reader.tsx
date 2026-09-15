@@ -1,73 +1,70 @@
 import { useMemo, useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import View from "@/components/ui/view";
 import { useSharedUiLang } from "@/context/ui-lang-context";
 import { useFontSize } from "@/hooks/use-font-size";
 import { useLastRead } from "@/hooks/use-last-read";
+import { usePalette } from "@/hooks/use-palette";
 import { useTranslationLang } from "@/hooks/use-translation-lang";
-import { SURAH_WITHOUT_BISMILLAH, versesPerPage } from "@/lib/constants";
+import { VERSES_PER_PAGE } from "@/lib/constants";
 import { chunk } from "@/lib/utils";
-import BismillahBanner from "@/UI/bismillah-banner";
+import BookPageFrame from "@/UI/book-page-frame";
 import BookPager from "@/UI/book-pager";
 import EmptyDataComponent from "@/UI/empty-data-component";
-import ReaderHeader from "@/UI/reader-header";
 
+import { useBookmarkedVerses, useToggleBookmark } from "../bookmarks/bookmarks-hooks";
 import SurahsBookPage from "./surahs-book-page";
-import { BISMILLAH_FALLBACK } from "./surahs-config";
 import { useGetSurahWithVerses } from "./surahs-hooks";
 
-export default function SurahsReader({ surahNumber }: { surahNumber: number }) {
+interface SurahsReaderProps {
+  surahNumber: number;
+  initialVerse?: number;
+}
+
+export default function SurahsReader({ surahNumber, initialVerse }: SurahsReaderProps) {
+  const palette = usePalette();
+  const insets = useSafeAreaInsets();
   const { t } = useSharedUiLang();
-  const { lang } = useTranslationLang("pashto");
+  const { lang } = useTranslationLang();
   const { fontSize } = useFontSize();
   const { lastRead, save: saveLastRead } = useLastRead();
   const { surah, verses } = useGetSurahWithVerses(surahNumber);
+  const bookmarked = useBookmarkedVerses();
+  const { toggleEntry } = useToggleBookmark();
 
-  const bismillah = useMemo(
-    () =>
-      surahNumber === SURAH_WITHOUT_BISMILLAH
-        ? undefined
-        : (verses.find((v) => v.verse_number === 0) ?? BISMILLAH_FALLBACK),
-    [verses, surahNumber]
-  );
-
-  const perPage = versesPerPage(lang);
   const pages = useMemo(
-    () => chunk(verses.filter((v) => v.verse_number > 0), perPage),
-    [verses, perPage]
+    () => chunk(verses.filter((v) => v.verse_number > 0), VERSES_PER_PAGE),
+    [verses]
   );
 
-  // Opening on the saved page avoids rendering page 1 and then jumping.
   const [initialPage] = useState(() => {
-    if (!surah || !lastRead || lastRead.juz_number) return 0;
-    if (lastRead.surah_id !== surah.id) return 0;
-    const idx = pages.findIndex((page) =>
-      page.some((v) => v.verse_number === lastRead.verse_number)
-    );
-    return idx > 0 ? idx : 0;
+    const resumeVerse =
+      surah && lastRead && !lastRead.juz_number && lastRead.surah_id === surah.id
+        ? lastRead.verse_number
+        : undefined;
+    const target = initialVerse ?? resumeVerse;
+    if (target == null) return 0;
+    const index = pages.findIndex((page) => page.some((v) => v.verse_number === target));
+    return index > 0 ? index : 0;
   });
 
   if (!surah) return null;
 
-  if (pages.length === 0) {
-    return (
-      <View className="flex-1">
-        <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
-          <ReaderHeader
-            title={surah.name_arabic}
-            subtitle={`${surah.name_pashto} • ${surah.total_verses} ${t("ayat")}`}
-          />
-          {bismillah && <BismillahBanner verse={bismillah} lang={lang} />}
-          <EmptyDataComponent icon="book-outline" title={t("noTranslation")} />
-        </SafeAreaView>
-      </View>
-    );
-  }
-
   return (
-    <View className="flex-1">
-      <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: palette.ground, paddingTop: insets.top + 4 }}>
+      {pages.length === 0 ? (
+        <View style={{ flex: 1, paddingHorizontal: 14, paddingBottom: 10 }}>
+          <BookPageFrame
+            startLabel=""
+            title={surah.name_arabic}
+            subtitle={t(surah.revelation_type)}
+            endLabel=""
+          >
+            <EmptyDataComponent icon="book" title={t("noTranslation")} />
+          </BookPageFrame>
+        </View>
+      ) : (
         <BookPager
           pages={pages}
           initialPage={initialPage}
@@ -75,17 +72,16 @@ export default function SurahsReader({ surahNumber }: { surahNumber: number }) {
           renderPage={(page, index) => (
             <SurahsBookPage
               verses={page}
-              bismillah={bismillah}
-              surahName={surah.name_arabic}
-              surahNumber={surahNumber}
+              surah={surah}
+              isFirstPage={index === 0}
               lang={lang}
               fontSize={fontSize}
-              pageIndex={index}
-              totalPages={pages.length}
+              bookmarked={bookmarked}
+              onToggleBookmark={toggleEntry}
             />
           )}
         />
-      </SafeAreaView>
+      )}
     </View>
   );
 }

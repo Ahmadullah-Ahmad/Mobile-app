@@ -8,6 +8,7 @@ import View from "@/components/ui/view";
 import { AppProviders } from "@/context/app-providers";
 import { useTheme } from "@/context/theme-context";
 import { resetDatabaseIfOutdated } from "@/db/db-version";
+import { FONT_ASSETS } from "@/lib/fonts";
 import "./global.css";
 
 // Allow per-component RTL on Android (writingDirection style).
@@ -31,10 +32,7 @@ function ThemedStack() {
 }
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
-    AmiriQuran: require("../assets/fonts/AmiriQuran.ttf"),
-    Amiri: require("../assets/fonts/Amiri-Regular.ttf"),
-  });
+  const [fontsLoaded] = useFonts(FONT_ASSETS);
 
   const [dbChecked, setDbChecked] = useState(false);
   useEffect(() => {

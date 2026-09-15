@@ -75,5 +75,5 @@ export default function BookPager<T>({
 
 const styles = StyleSheet.create({
   pager: { flex: 1 },
-  slot: { width: SCREEN_W, flex: 1 },
+  slot: { width: SCREEN_W, flex: 1, paddingHorizontal: 14, paddingBottom: 10 },
 });

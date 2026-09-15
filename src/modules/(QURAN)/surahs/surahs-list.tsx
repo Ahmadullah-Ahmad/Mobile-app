@@ -1,58 +1,79 @@
 import { useCallback, useMemo, useState } from "react";
-import { FlatList } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { FlatList, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import View from "@/components/ui/view";
 import { useSharedUiLang } from "@/context/ui-lang-context";
-import { useLastRead } from "@/hooks/use-last-read";
+import { useDirection } from "@/hooks/use-direction";
+import { usePalette } from "@/hooks/use-palette";
+import { QURAN_TITLE } from "@/lib/constants";
 import { navigate, ROUTES } from "@/lib/routes";
-import ScreenHeader from "@/UI/screen-header";
+import AppText from "@/UI/app-text";
+import ScreenHeading from "@/UI/screen-heading";
+import ScreenTransition from "@/UI/screen-transition";
 import SearchInput from "@/UI/search-input";
+import TranslationTabs from "@/UI/translation-tabs";
 
-import SurahsCard from "./surahs-card";
 import type { Surah } from "./surahs-config";
-import SurahsContinueReading from "./surahs-continue-reading";
 import { filterSurahs } from "./surahs-filter";
 import { useGetAllSurahs } from "./surahs-hooks";
+import SurahsRow from "./surahs-row";
 
 export default function SurahsList() {
+  const palette = usePalette();
+  const insets = useSafeAreaInsets();
   const { t } = useSharedUiLang();
+  const { writingDirection } = useDirection();
   const { surahs } = useGetAllSurahs();
-  const { lastRead } = useLastRead();
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => filterSurahs(surahs, query), [surahs, query]);
-  const openSurah = useCallback(
-    (surah: Surah) => navigate(ROUTES.surah(surah.number)),
-    []
-  );
+  const openSurah = useCallback((surah: Surah) => navigate(ROUTES.surah(surah.number)), []);
 
   return (
-    <View className="flex-1">
-      <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
-        <ScreenHeader
-          title={t("surahListTitle")}
+    <ScreenTransition
+      style={{
+        flex: 1,
+        backgroundColor: palette.ground,
+        paddingTop: insets.top + 4,
+        direction: writingDirection,
+      }}
+    >
+      <View style={{ paddingHorizontal: 22, paddingBottom: 14 }}>
+        <ScreenHeading
+          title={QURAN_TITLE}
           subtitle={t("surahListSubtitle")}
+          titleVariant="quran"
+          titleLineHeight={1.9}
         />
-        <FlatList
-          data={filtered}
-          keyExtractor={(s) => String(s.id)}
-          renderItem={({ item }) => <SurahsCard surah={item} onPress={openSurah} />}
-          ListHeaderComponent={
-            <View className="bg-background pt-3">
-              <SurahsContinueReading lastSurahId={lastRead?.surah_id} />
-              <SearchInput value={query} onChange={setQuery} placeholder={t("search")} />
-            </View>
-          }
-          contentContainerStyle={{ paddingBottom: 32 }}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          initialNumToRender={20}
-          maxToRenderPerBatch={20}
-          windowSize={5}
-          style={{ flex: 1 }}
+        <TranslationTabs style={{ marginTop: 10 }} />
+        <SearchInput
+          value={query}
+          onChange={setQuery}
+          placeholder={t("search")}
+          style={{ marginTop: 10 }}
         />
-      </SafeAreaView>
-    </View>
+      </View>
+
+      <FlatList
+        data={filtered}
+        keyExtractor={(surah) => String(surah.id)}
+        renderItem={({ item }) => <SurahsRow surah={item} onPress={openSurah} />}
+        contentContainerStyle={{ paddingTop: 4, paddingHorizontal: 22, paddingBottom: 16, gap: 9 }}
+        ListEmptyComponent={
+          <AppText
+            size={14}
+            color={palette.ink2}
+            align="center"
+            style={{ paddingVertical: 30, paddingHorizontal: 10 }}
+          >
+            {t("noSurahFound")}
+          </AppText>
+        }
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={20}
+        windowSize={7}
+      />
+    </ScreenTransition>
   );
 }

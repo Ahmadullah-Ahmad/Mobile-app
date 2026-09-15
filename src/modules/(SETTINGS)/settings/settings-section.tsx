@@ -1,29 +1,27 @@
 import type { ReactNode } from "react";
-import { Text, View } from "react-native";
+import { View, type StyleProp, type ViewStyle } from "react-native";
 
-import { useDirection } from "@/hooks/use-direction";
+import { usePalette } from "@/hooks/use-palette";
+import AppText from "@/UI/app-text";
 
 interface SettingsSectionProps {
   title: string;
   subtitle: string;
+  style?: StyleProp<ViewStyle>;
   children: ReactNode;
 }
 
-export default function SettingsSection({
-  title,
-  subtitle,
-  children,
-}: SettingsSectionProps) {
-  const { textAlign } = useDirection();
+export default function SettingsSection({ title, subtitle, style, children }: SettingsSectionProps) {
+  const palette = usePalette();
 
   return (
-    <View className="gap-2">
-      <Text className="text-foreground text-base font-semibold" style={{ textAlign }}>
+    <View style={[{ marginBottom: 24 }, style]}>
+      <AppText variant="uiMedium" size={15} align="start" style={{ marginHorizontal: 2, marginBottom: 2 }}>
         {title}
-      </Text>
-      <Text className="text-muted-foreground text-xs mb-1" style={{ textAlign }}>
+      </AppText>
+      <AppText size={12} color={palette.ink2} align="start" style={{ marginHorizontal: 2, marginBottom: 10 }}>
         {subtitle}
-      </Text>
+      </AppText>
       {children}
     </View>
   );

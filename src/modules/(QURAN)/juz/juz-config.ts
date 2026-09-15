@@ -1,4 +1,4 @@
-import type { Verse } from "@/lib/common-types";
+import type { RevelationType, Verse } from "@/lib/common-types";
 
 export interface Juz {
   number: number;
@@ -10,12 +10,12 @@ export interface Juz {
   name_pashto: string;
   name_dari: string;
   start_surah_name?: string;
-  verse_count?: number;
 }
 
 export type JuzVerse = Verse & {
   surah_number: number;
   surah_name_arabic: string;
+  surah_revelation_type: RevelationType;
 };
 
 export interface JuzSurahGroup {

@@ -1,22 +1,15 @@
 import { router } from "expo-router";
 
-/** Every screen path in one place, so a renamed route is a one-line change. */
 export const ROUTES = {
   home: "/",
   surahs: "/quran",
   juzList: "/quran/para",
-  bookmarks: "/quran/bookmarks",
-  settings: "/settings",
-  surah: (surahNumber: number) => `/quran/${surahNumber}`,
+  surah: (surahNumber: number, verse?: number) =>
+    verse ? `/quran/${surahNumber}?verse=${verse}` : `/quran/${surahNumber}`,
   juz: (juzNumber: number) => `/quran/juz/${juzNumber}`,
 } as const;
 
-/**
- * Push a screen by path.
- *
- * Typed routes only accept literal paths, and the saved last-read route is a
- * runtime string, so the single cast lives here instead of at every call site.
- */
+// Typed routes only accept literal paths; runtime-built paths need this one cast.
 export function navigate(path: string) {
-  (router.push as (href: string) => void)(path);
+  (router.navigate as (href: string) => void)(path);
 }

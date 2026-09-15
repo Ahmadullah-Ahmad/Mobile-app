@@ -1,29 +1,36 @@
-import { Ionicons } from "@expo/vector-icons";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 
-import { useTheme } from "@/context/theme-context";
+import { usePalette } from "@/hooks/use-palette";
+
+import AppText from "./app-text";
+import Icon, { type IconName } from "./icon";
 
 interface EmptyDataComponentProps {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IconName;
   title: string;
 }
 
-export default function EmptyDataComponent({
-  icon,
-  title,
-}: EmptyDataComponentProps) {
-  const { theme } = useTheme();
+export default function EmptyDataComponent({ icon, title }: EmptyDataComponentProps) {
+  const palette = usePalette();
 
   return (
-    <View className="flex-1 items-center justify-center px-8">
-      <Ionicons
-        name={icon}
-        size={48}
-        color={theme === "light" ? "black" : "gray"}
-      />
-      <Text className="text-muted-foreground text-base mt-4 text-center">
+    <View style={{ alignItems: "center", paddingTop: 40, paddingHorizontal: 24, paddingBottom: 48 }}>
+      <View
+        style={{
+          width: 78,
+          height: 78,
+          borderRadius: 39,
+          backgroundColor: palette.panel,
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 16,
+        }}
+      >
+        <Icon name={icon} size={32} color={palette.ink2} />
+      </View>
+      <AppText size={15} color={palette.ink2} align="center">
         {title}
-      </Text>
+      </AppText>
     </View>
   );
 }
