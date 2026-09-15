@@ -41,44 +41,59 @@ Then press:
 
 ## Project Structure
 
+The layout follows the same module pattern as the small-store web app. Route
+files are thin wrappers, features live in `src/modules/(GROUP)/<feature>/`, and
+anything used by more than one feature lives in a shared folder.
+
 ```
-app/                    # Screens (expo-router file-based routing)
-  _layout.tsx           # Root layout — fonts, theme, StatusBar
-  index.tsx             # Home screen
-  quran/
-    _layout.tsx         # SQLiteProvider + DrizzleStudio wrapper
-    index.tsx           # Surah list (114 surahs)
-    para.tsx            # Juz/Para list (30 juz)
-    [id].tsx            # Surah reader (paged, Arabic + translations)
-    juz/
-      [number].tsx      # Juz reader (paged, surah dividers)
+app/                               # Routes only (expo-router); each file renders one module view
+  _layout.tsx                      # Fonts, DB version check, AppProviders, Stack
+  (GENERAL)/index.tsx              # /            -> home-view
+  (SETTINGS)/settings.tsx          # /settings    -> settings-view
+  (QURAN)/quran/
+    _layout.tsx                    # Quran stack animation
+    index.tsx                      # /quran       -> surahs-list
+    [id].tsx                       # /quran/:id   -> surahs-reader
+    para.tsx                       # /quran/para  -> juz-list
+    juz/[number].tsx               # /quran/juz/:number -> juz-reader
+    bookmarks.tsx                  # /quran/bookmarks   -> bookmarks-view
 
-components/
-  quran/                # VerseCard, LanguageToggle
-  ui/                   # Text, View, Dropdown, etc.
-
-lib/
-  db/
-    index.ts            # useDb() Drizzle hook
-    schema.ts           # Drizzle table definitions
-  quran-db.ts           # All query helpers (getAllSurahs, getVerses, …)
-  settings.ts           # Key-value persistence via AsyncStorage
-
-hooks/
-  use-quran.ts          # useSurahs, useVerses, useJuzVerses, useLastRead, …
+src/
+  modules/                         # One folder per feature, files prefixed with the feature name
+    (GENERAL)/home/                # home-view, home-config
+    (SETTINGS)/settings/           # settings-view, -section, -language-select, -theme-toggle, -font-size, -config
+    (QURAN)/surahs/                # surahs-list, -reader, -book-page, -card, -continue-reading, -hooks, -filter, -config
+    (QURAN)/juz/                   # juz-list, -reader, -book-page, -card, -surah-divider, -hooks, -filter, -config
+    (QURAN)/bookmarks/             # bookmarks-view, -row, -form, -hooks, -config
+    (QURAN)/search/                # search-hooks
+  UI/                              # App-level reusable components
+                                   #   book-pager, book-page-frame, verse-item, bismillah-banner,
+                                   #   screen-header, back-button, search-input, nav-card,
+                                   #   confirm-dialog, loading-spinner, empty-data-component, …
+  components/ui/                   # Primitives (Text, View, Dropdown, Drawer, …)
+  hooks/                           # Shared hooks
+                                   #   use-sync-query, use-mutation, use-persisted-setting,
+                                   #   use-last-read, use-translation-lang, use-font-size, use-direction
+  context/                         # app-providers, database-provider, theme-context, ui-lang-context
+  db/                              # client (Drizzle), schema, seed, sync-read, db-version
+  i18n/                            # config, messages, use-ui-lang, locales/{ps,fa,en}.json
+  lib/                             # common-types, constants, routes, settings, themes, utils
 
 assets/
-  db/app.db           # Pre-seeded SQLite database (Arabic + Pashto + Dari)
-  fonts/                # AmiriQuran.ttf, Amiri-Regular.ttf
+  db/app.db                        # Pre-seeded SQLite database (Arabic + Pashto + Dari)
+  fonts/                           # AmiriQuran.ttf, Amiri-Regular.ttf
 
-scripts/                # Python utilities for DB management
-  parse_quran.py        # Parse .docx files → DB rows
-  import_dari.py        # Batch import Dari translations
-  import_juz.py         # Import Juz boundary data
-  init_db.py            # Initialize fresh DB from scratch
-
-drizzle.config.ts       # Drizzle Kit config (schema, dialect, driver)
+scripts/                           # Python utilities for DB management
+drizzle.config.ts                  # Drizzle Kit config (schema, dialect, driver)
 ```
+
+### Adding a feature
+
+1. Create `src/modules/(GROUP)/<feature>/` with `<feature>-config.ts` for types and constants,
+   `<feature>-hooks.ts` for data access, and `<feature>-view.tsx` for the screen.
+2. Read data with `useSyncQuery` when the screen needs it on first paint, and write with `useMutation`.
+3. Add a route file under `app/(GROUP)/` that only renders the view, and add its path to `src/lib/routes.ts`.
+4. Put a component in `src/UI/` only once a second feature needs it.
 
 ## Database
 
@@ -88,13 +103,13 @@ The app ships a pre-seeded `assets/db/app.db` SQLite file. On first launch, Expo
 
 On startup, the app automatically:
 1. Runs **Drizzle migrations** (`drizzle/`) — creates/updates the schema
-2. Runs **seed** (`lib/db/seed.ts`) — inserts the 114 surahs and 30 juz if not present
+2. Runs **seed** (`src/db/seed.ts`) — inserts the 114 surahs and 30 juz if not present
 
 ### Fixing a Corrupted Database
 
 **On-device DB is corrupted** (e.g. "disk image is malformed"):
 
-1. Bump `DB_VERSION` in `app/quran/_layout.tsx` (e.g. `"6"` → `"7"`).  
+1. Bump `DB_VERSION` in `src/db/db-version.ts` (e.g. `"6"` → `"7"`).  
    On next launch the app wipes the corrupted SQLite directory, re-copies the asset DB, then runs migrations + seed automatically.
 2. Run `pnpm start:clear`.
 
@@ -115,11 +130,11 @@ python3 scripts/parse_quran.py --docx "quran/surah_18.docx" --surah-number 18 --
 pnpm start:clear
 ```
 
-> Surah metadata (114 surahs) and juz data (30 juz) are seeded automatically by the app on startup via `lib/db/seed.ts` — you do not need to re-import those manually.
+> Surah metadata (114 surahs) and juz data (30 juz) are seeded automatically by the app on startup via `src/db/seed.ts` — you do not need to re-import those manually.
 
 ### Schema Changes
 
-When you change `lib/db/schema.ts`:
+When you change `src/db/schema.ts`:
 
 ```bash
 # Generate a new migration SQL file into drizzle/
