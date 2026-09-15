@@ -1,7 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import {
-  ActivityIndicator,
   Dimensions,
   Pressable,
   ScrollView,
@@ -18,17 +17,18 @@ import { useFontSize } from "@/lib/font-size";
 import { useDirection } from "@/lib/i18n-provider";
 import { chunk, toArabicNumeral } from "@/lib/utils";
 import {
-  getAllJuz,
-  useDb,
+  useJuzList,
   useJuzVerses,
   useLastRead,
   useTranslationLang,
-  type Juz,
   type TranslationLang,
   type Verse,
 } from "@/UI";
 
 const SCREEN_W = Dimensions.get("window").width;
+
+/** Pages this far either side of the current one are kept mounted. */
+const RENDER_WINDOW = 1;
 
 // ─── Surah divider (juz-specific — shows between two surahs in one juz) ──────
 
@@ -68,7 +68,7 @@ function SurahDivider({ name, number }: { name: string; number: number }) {
 
 type JuzVerse = Verse & { surah_number: number; surah_name_arabic: string };
 
-function BookPage({
+function BookPageImpl({
   verses,
   lang,
   fontSize,
@@ -228,88 +228,102 @@ function BookPage({
   );
 }
 
+/**
+ * Memoized so a screen re-render (a page swipe, saving the reading position)
+ * skips pages whose props are unchanged instead of re-laying out their text.
+ */
+const BookPage = memo(BookPageImpl);
+
 // ─── Screen ──────────────────────────────────────────────────────────────────
 
 export default function JuzReaderScreen() {
   const { number } = useLocalSearchParams<{ number: string }>();
   const juzNumber = Number(number);
 
-  const db = useDb();
-  const [juz, setJuz] = useState<Juz | null>(null);
   const { lang } = useTranslationLang("both");
   const { fontSize } = useFontSize();
-  const { verses, loading } = useJuzVerses(juzNumber);
+  const { verses } = useJuzVerses(juzNumber);
+  const { juzList } = useJuzList();
   const { lastRead, save: saveLastRead } = useLastRead();
 
-  const pagerRef = useRef<ScrollView>(null);
-  const currentPageRef = useRef(0);
-  const didInit = useRef(false);
+  // Both the juz metadata and its verses are read synchronously, so the page
+  // has everything it needs on the first render.
+  const juz = juzList.find((j) => j.number === juzNumber) ?? null;
 
-  useEffect(() => {
-    getAllJuz(db).then((list) => {
-      const found = list.find((j) => j.number === juzNumber);
-      if (found) setJuz(found);
-    });
-  }, [db, juzNumber]);
-
-  // Tag each verse with its global index for surah-boundary detection
-  const taggedVerses = verses.map((v, i) => ({ ...v, __globalIdx: i }));
-
-  // Pre-compute which global indices start a new surah
-  const surahStarts = new Set<number>();
-  {
+  // Memoized so every page keeps the same props between renders, which lets
+  // the memoized BookPage skip re-laying out Arabic text it already rendered.
+  const surahStarts = useMemo(() => {
+    const starts = new Set<number>();
     let prev = -1;
     for (let i = 0; i < verses.length; i++) {
       if (verses[i].surah_number !== prev) {
-        surahStarts.add(i);
+        starts.add(i);
         prev = verses[i].surah_number;
       }
     }
-  }
+    return starts;
+  }, [verses]);
 
   const versesPerPage = lang === "none" ? 15 : 10;
-  const pages = chunk(taggedVerses, versesPerPage);
+  const pages = useMemo(
+    () =>
+      chunk(
+        // Tag each verse with its global index for surah-boundary detection
+        verses.map((v, i) => ({ ...v, __globalIdx: i })),
+        versesPerPage
+      ),
+    [verses, versesPerPage]
+  );
   const totalPages = pages.length;
 
-  // Restore to saved page once when verses first load
-  useEffect(() => {
-    if (pages.length === 0 || didInit.current) return;
-    didInit.current = true;
+  // The page to open on, worked out once from the saved position, so the pager
+  // starts there instead of rendering page 1 and jumping.
+  const [initialPage] = useState(() => {
+    if (!lastRead || lastRead.juz_number !== juzNumber) return 0;
+    const idx = pages.findIndex((p) =>
+      p.some(
+        (v) =>
+          v.surah_id === lastRead.surah_id &&
+          v.verse_number === lastRead.verse_number
+      )
+    );
+    return idx > 0 ? idx : 0;
+  });
 
-    if (lastRead && lastRead.juz_number === juzNumber) {
-      const savedVerse = lastRead.verse_number;
-      const savedSurah = lastRead.surah_id;
-      const pageIdx = pages.findIndex((p) =>
-        p.some((v) => v.surah_id === savedSurah && v.verse_number === savedVerse)
-      );
-      if (pageIdx > 0) {
-        setTimeout(() => {
-          pagerRef.current?.scrollTo({ x: SCREEN_W * pageIdx, animated: false });
-          currentPageRef.current = pageIdx;
-        }, 100);
-      }
-    }
-    const first = pages[0]?.[0];
+  const pagerRef = useRef<ScrollView>(null);
+  const currentPageRef = useRef(initialPage);
+  const positioned = useRef(initialPage === 0);
+  // Only pages within RENDER_WINDOW of this one are built. Each slot keeps its
+  // full SCREEN_W width, so paging geometry and the book feel are unchanged.
+  const [currentPage, setCurrentPage] = useState(initialPage);
+
+  // Record the page actually opened (previously always page 1's first verse,
+  // which discarded a restored position if you closed without swiping).
+  useEffect(() => {
+    const first = pages[initialPage]?.[0];
     if (first) saveLastRead(first.surah_id, first.verse_number, juzNumber);
-  }, [juzNumber, pages.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [juzNumber]);
+
+  // Position the pager on the opening page as soon as its content is laid out.
+  const onContentSizeChange = () => {
+    if (positioned.current) return;
+    positioned.current = true;
+    pagerRef.current?.scrollTo({ x: SCREEN_W * initialPage, animated: false });
+  };
 
   const onMomentumScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / SCREEN_W);
     if (index !== currentPageRef.current) {
       currentPageRef.current = index;
+      setCurrentPage(index);
       const first = pages[index]?.[0];
       if (first) saveLastRead(first.surah_id, first.verse_number, juzNumber);
     }
   };
 
-  if (!juz || loading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#166534" />
-        <Text className="text-muted-foreground mt-3 text-sm">بارګیرول...</Text>
-      </View>
-    );
-  }
+  // Unknown juz number in the route.
+  if (!juz) return null;
 
   return (
     <View className="flex-1">
@@ -319,20 +333,24 @@ export default function JuzReaderScreen() {
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
+          contentOffset={{ x: SCREEN_W * initialPage, y: 0 }}
+          onContentSizeChange={onContentSizeChange}
           onMomentumScrollEnd={onMomentumScrollEnd}
           style={styles.pager}
         >
           {pages.map((pageVerses, index) => (
             <View key={index} style={styles.pageSlot} className="bg-transparent">
-              <BookPage
-                verses={pageVerses}
-                surahStarts={surahStarts}
-                lang={lang}
-                fontSize={fontSize}
-                juzNumber={juzNumber}
-                pageIndex={index}
-                totalPages={totalPages}
-              />
+              {Math.abs(index - currentPage) <= RENDER_WINDOW ? (
+                <BookPage
+                  verses={pageVerses}
+                  surahStarts={surahStarts}
+                  lang={lang}
+                  fontSize={fontSize}
+                  juzNumber={juzNumber}
+                  pageIndex={index}
+                  totalPages={totalPages}
+                />
+              ) : null}
             </View>
           ))}
         </ScrollView>

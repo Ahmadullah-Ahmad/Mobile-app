@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { NativeModules, Platform } from "react-native";
-import { loadSetting, saveSetting } from "./settings";
+import { loadSetting, peekSetting, saveSetting } from "./settings";
 
 export type UiLang = "pashto" | "dari" | "english";
 
@@ -229,12 +229,20 @@ function getDeviceDefault(): UiLang {
 }
 
 export function useUiLang() {
-  const [lang, setLangState] = useState<UiLang | null>(null);
+  // With a warm settings cache the language is known on the first render, so
+  // UiLangProvider does not have to render nothing and wait for a file read.
+  const [lang, setLangState] = useState<UiLang | null>(() => {
+    const cached = peekSetting<UiLang>("uiLang");
+    if (cached === undefined) return null; // cache not loaded yet
+    return cached ?? getDeviceDefault();
+  });
 
   useEffect(() => {
+    if (lang !== null) return;
     loadSetting<UiLang>("uiLang").then((saved) => {
       setLangState(saved ?? getDeviceDefault());
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const resolvedLang = lang ?? getDeviceDefault();

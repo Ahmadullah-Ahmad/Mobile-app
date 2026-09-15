@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, FlatList, Pressable } from "react-native";
+import { FlatList, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import Text from "@/components/ui/text";
@@ -42,7 +42,7 @@ function ContinueReading({ lastSurahId }: { lastSurahId?: number }) {
 
 // ─── Screen ──────────────────────────────────────────────────────────────────
 export default function SurahListScreen() {
-  const { surahs, loading } = useSurahs();
+  const { surahs } = useSurahs();
   const { lastRead } = useLastRead();
   const [query, setQuery] = useState("");
   const { t } = useSharedUiLang();
@@ -59,15 +59,6 @@ export default function SurahListScreen() {
 
   const openSurah = (s: Surah) =>
     router.push({ pathname: "/quran/[id]", params: { id: String(s.number) } } as never);
-
-  if (loading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
-        <Text className="text-muted-foreground mt-3 text-sm">{t("loading")}</Text>
-      </View>
-    );
-  }
 
   return (
     <View className="flex-1">

@@ -1,77 +1,80 @@
 /**
- * React hooks for Quran data.
- * All hooks read through Drizzle (see ../api/client) which wraps the shared
- * SQLiteDatabase provided by SQLiteProvider in app/quran/_layout.tsx.
+ * React hooks for Quran data, over the SQLiteDatabase provided by
+ * SQLiteProvider in app/_layout.tsx.
+ *
+ * Anything a screen needs for its first paint — surah list, juz list, verses,
+ * last-read position, saved settings — is read synchronously (../api/sync-reads
+ * and the settings cache), so it exists on the first render. Values that arrive
+ * a render late force a second full render of the page, which is what made
+ * opening a surah stutter.
+ *
+ * Writes and on-demand reads — bookmarks, search — go through Drizzle in
+ * ../api/queries, where an extra frame costs nothing.
  */
 
-import { useCallback, useEffect, useState } from "react";
-import { loadSetting, saveSetting } from "@/lib/settings";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSQLiteContext } from "expo-sqlite";
+import { loadSetting, peekSetting, saveSetting } from "@/lib/settings";
 import { useDb } from "../api/client";
 import {
-  getAllJuz,
-  getAllSurahs,
+  readJuzList,
+  readJuzVerses,
+  readLastRead,
+  readSurah,
+  readSurahs,
+  readVerses,
+} from "../api/sync-reads";
+import {
   getBookmarks,
-  getLastRead,
-  getVerses,
-  getVersesByJuz,
   isBookmarked,
   saveLastRead,
   searchVerses,
   toggleBookmark,
 } from "../api/queries";
-import type {
-  Bookmark,
-  Juz,
-  LastRead,
-  Surah,
-  TranslationLang,
-  Verse,
-} from "../api/types";
+import type { Bookmark, LastRead, TranslationLang } from "../api/types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Surah list
 // ─────────────────────────────────────────────────────────────────────────────
 
+/** All 114 surahs. Read synchronously, so `loading` is never true. */
 export function useSurahs() {
-  const db = useDb();
-  const [surahs, setSurahs] = useState<Surah[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    getAllSurahs(db)
-      .then(setSurahs)
-      .catch(setError)
-      .finally(() => setLoading(false));
-  }, [db]);
-
-  return { surahs, loading, error };
+  const sqlite = useSQLiteContext();
+  const surahs = useMemo(() => readSurahs(sqlite), [sqlite]);
+  return { surahs, loading: false, error: null as Error | null };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Verses for one surah
 // ─────────────────────────────────────────────────────────────────────────────
+export const FIRST_CHUNK = 20;
 
+/** Every verse of a surah. Read synchronously, so `loading` is never true. */
 export function useVerses(surahId: number) {
-  const db = useDb();
-  const [verses, setVerses] = useState<Verse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const sqlite = useSQLiteContext();
+  const verses = useMemo(
+    () => (surahId === 0 ? [] : readVerses(sqlite, surahId)),
+    [sqlite, surahId]
+  );
+  return { verses, loading: false, error: null as Error | null };
+}
 
-  useEffect(() => {
-    if (surahId === 0) {
-      setVerses([]);
-      setLoading(true); // keep loading true so callers don't show empty state
-      return;
-    }
-    setLoading(true);
-    getVerses(db, surahId)
-      .then(setVerses)
-      .catch(setError)
-      .finally(() => setLoading(false));
-  }, [db, surahId]);
-
-  return { verses, loading, error };
+/**
+ * Surah metadata plus its verses, both read synchronously from the surah
+ * *number*. Replaces the old two-step load (metadata, then verses keyed on the
+ * resolved id), which needed two async round-trips before the reader could
+ * paint anything.
+ */
+export function useSurahReader(surahNumber: number) {
+  const sqlite = useSQLiteContext();
+  return useMemo(() => {
+    const surah = readSurah(sqlite, surahNumber);
+    return {
+      surah,
+      verses: surah ? readVerses(sqlite, surah.id) : [],
+      loading: false,
+    };
+  }, [sqlite, surahNumber]);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -152,11 +155,12 @@ export function useBookmarks() {
 
 export function useLastRead() {
   const db = useDb();
-  const [lastRead, setLastRead] = useState<LastRead | null>(null);
-
-  useEffect(() => {
-    getLastRead(db).then(setLastRead);
-  }, [db]);
+  const sqlite = useSQLiteContext();
+  // Read synchronously: an async read here landed just after the first paint
+  // and re-rendered the whole screen for no visible change.
+  const [lastRead, setLastRead] = useState<LastRead | null>(() =>
+    readLastRead(sqlite)
+  );
 
   const save = useCallback(
     (surahId: number, verseNumber: number, juzNumber: number | null = null) => {
@@ -179,40 +183,25 @@ export function useLastRead() {
 // Juz (Para) list
 // ─────────────────────────────────────────────────────────────────────────────
 
+/** All 30 juz. Read synchronously, so `loading` is never true. */
 export function useJuzList() {
-  const db = useDb();
-  const [juzList, setJuzList] = useState<Juz[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getAllJuz(db)
-      .then(setJuzList)
-      .finally(() => setLoading(false));
-  }, [db]);
-
-  return { juzList, loading };
+  const sqlite = useSQLiteContext();
+  const juzList = useMemo(() => readJuzList(sqlite), [sqlite]);
+  return { juzList, loading: false };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Verses for one juz
 // ─────────────────────────────────────────────────────────────────────────────
 
+/** Every verse of a juz. Read synchronously, so `loading` is never true. */
 export function useJuzVerses(juzNumber: number) {
-  const db = useDb();
-  const [verses, setVerses] = useState<
-    Awaited<ReturnType<typeof getVersesByJuz>>
-  >([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (juzNumber < 1) return;
-    setLoading(true);
-    getVersesByJuz(db, juzNumber)
-      .then(setVerses)
-      .finally(() => setLoading(false));
-  }, [db, juzNumber]);
-
-  return { verses, loading };
+  const sqlite = useSQLiteContext();
+  const verses = useMemo(
+    () => (juzNumber < 1 ? [] : readJuzVerses(sqlite, juzNumber)),
+    [sqlite, juzNumber]
+  );
+  return { verses, loading: false };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -220,9 +209,15 @@ export function useJuzVerses(juzNumber: number) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function useTranslationLang(initial: TranslationLang = "pashto") {
-  const [lang, setLangState] = useState<TranslationLang>(initial);
+  // Take the saved language from the settings cache so the first render is
+  // already correct — "none" uses 15 verses per page instead of 10, so a late
+  // value re-chunked and re-rendered every page.
+  const [lang, setLangState] = useState<TranslationLang>(
+    () => peekSetting<TranslationLang>("lang") ?? initial
+  );
 
   useEffect(() => {
+    if (peekSetting("lang") !== undefined) return; // cache already applied
     loadSetting<TranslationLang>("lang").then((saved) => {
       if (saved) setLangState(saved);
     });

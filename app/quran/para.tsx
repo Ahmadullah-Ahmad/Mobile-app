@@ -1,9 +1,8 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, FlatList } from "react-native";
+import { FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import Text from "@/components/ui/text";
 import View from "@/components/ui/view";
 import { useSharedUiLang } from "@/lib/i18n-provider";
 import {
@@ -15,7 +14,7 @@ import {
 } from "@/UI";
 
 export default function ParaListScreen() {
-  const { juzList, loading } = useJuzList();
+  const { juzList } = useJuzList();
   const [query, setQuery] = useState("");
   const { t } = useSharedUiLang();
 
@@ -29,15 +28,6 @@ export default function ParaListScreen() {
 
   const openJuz = (j: Juz) =>
     router.push({ pathname: "/quran/juz/[number]", params: { number: String(j.number) } } as never);
-
-  if (loading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
-        <Text className="text-muted-foreground mt-3 text-sm">{t("loading")}</Text>
-      </View>
-    );
-  }
 
   return (
     <View className="flex-1">

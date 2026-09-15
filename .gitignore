@@ -46,3 +46,4 @@ app-example
 
 # Drizzle generated migrations (schema is source of truth)
 drizzle/
+.db-backups/

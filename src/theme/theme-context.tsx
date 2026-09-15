@@ -1,5 +1,5 @@
 import { useColorScheme as useNativewindColorScheme } from 'nativewind';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useColorScheme as useNativeColorScheme } from 'react-native';
 import { themes } from './themes';
 
@@ -24,16 +24,22 @@ export function ThemeProvider({
     const [theme, setTheme] = useState<ThemeType>(
         defaultTheme === 'system' ? systemColorScheme : defaultTheme as ThemeType
     );
-    const { setColorScheme } = useNativewindColorScheme();
+    const { colorScheme, setColorScheme } = useNativewindColorScheme();
 
     useEffect(() => {
-        setColorScheme(theme);
-    }, [theme, setColorScheme]);
+        if (colorScheme !== theme) setColorScheme(theme);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [theme, colorScheme]);
 
     const activeTheme = themes[theme];
 
+    const value = useMemo(
+        () => ({ theme, setTheme, activeTheme }),
+        [theme, activeTheme]
+    );
+
     return (
-        <ThemeContext.Provider value={{ theme, setTheme, activeTheme }}>
+        <ThemeContext.Provider value={value}>
             {children}
         </ThemeContext.Provider>
     );

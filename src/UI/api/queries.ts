@@ -72,9 +72,20 @@ export async function getSurah(
 // Verses
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Fetch all verses for a given surah (ordered by verse_number). */
-export async function getVerses(db: DB, surahId: number): Promise<Verse[]> {
-  const rows = await db
+/**
+ * Fetch verses for a given surah (ordered by verse_number).
+ *
+ * Pass `limit` to fetch only the opening slice — the reader paints that
+ * immediately and loads the remainder in the background, so no spinner is
+ * needed. Omit it to fetch the whole surah.
+ */
+export async function getVerses(
+  db: DB,
+  surahId: number,
+  limit?: number,
+  offset = 0
+): Promise<Verse[]> {
+  const query = db
     .select({
       id: verses.id,
       surah_id: verses.surahId,
@@ -88,7 +99,9 @@ export async function getVerses(db: DB, surahId: number): Promise<Verse[]> {
     .where(eq(verses.surahId, surahId))
     .orderBy(verses.verseNumber);
 
-  return rows;
+  if (limit == null && offset === 0) return await query;
+  // SQLite only honours OFFSET alongside a LIMIT; -1 means "no limit".
+  return await query.limit(limit ?? -1).offset(offset);
 }
 
 /** Full-text search across Arabic, Pashto and Dari fields. */
@@ -274,12 +287,19 @@ export async function getAllJuz(db: DB): Promise<Juz[]> {
   return rows;
 }
 
-/** Fetch all verses belonging to a given juz number. */
+/**
+ * Fetch verses belonging to a given juz number.
+ *
+ * Takes the same optional `limit`/`offset` as {@link getVerses} so the juz
+ * reader can paint its opening page before the rest arrives.
+ */
 export async function getVersesByJuz(
   db: DB,
-  juzNumber: number
+  juzNumber: number,
+  limit?: number,
+  offset = 0
 ): Promise<(Verse & { surah_number: number; surah_name_arabic: string })[]> {
-  const rows = await db
+  const query = db
     .select({
       id: verses.id,
       surah_id: verses.surahId,
@@ -296,5 +316,7 @@ export async function getVersesByJuz(
     .where(eq(verses.juzNumber, juzNumber))
     .orderBy(surahs.number, verses.verseNumber);
 
-  return rows;
+  if (limit == null && offset === 0) return await query;
+  // SQLite only honours OFFSET alongside a LIMIT; -1 means "no limit".
+  return await query.limit(limit ?? -1).offset(offset);
 }

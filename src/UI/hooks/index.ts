@@ -1,5 +1,6 @@
 export {
   useSurahs,
+  useSurahReader,
   useVerses,
   useSearch,
   useBookmark,

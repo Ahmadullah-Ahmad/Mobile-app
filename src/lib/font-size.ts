@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { loadSetting, saveSetting } from "./settings";
+import { loadSetting, peekSetting, saveSetting } from "./settings";
 
 export const MIN_FONT_SIZE = 14;
 export const MAX_FONT_SIZE = 32;
@@ -7,9 +7,15 @@ export const DEFAULT_FONT_SIZE = 18;
 export const FONT_SIZE_STEP = 2;
 
 export function useFontSize() {
-  const [fontSize, setFontSizeState] = useState<number>(DEFAULT_FONT_SIZE);
+  // Start from the cached value so the first render already uses the saved
+  // size — otherwise every verse is laid out at the default and then again.
+  const [fontSize, setFontSizeState] = useState<number>(() => {
+    const cached = peekSetting<number>("fontSize");
+    return typeof cached === "number" ? cached : DEFAULT_FONT_SIZE;
+  });
 
   useEffect(() => {
+    if (peekSetting("fontSize") !== undefined) return; // cache already applied
     loadSetting<number>("fontSize").then((saved) => {
       if (typeof saved === "number") setFontSizeState(saved);
     });
