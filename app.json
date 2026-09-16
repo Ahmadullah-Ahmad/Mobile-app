@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "القرآن الكريم",
-    "slug": "my-app",
+    "slug": "quran-with-dari-and-pashto-translation",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
