@@ -48,5 +48,8 @@ app-example
 drizzle/
 .db-backups/
 
+# Python
+__pycache__/
+
 # Claude Design handoff bundle (local reference only)
 /design/

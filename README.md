@@ -129,7 +129,11 @@ python3 scripts/init_db.py
 python3 scripts/import_dari.py
 python3 scripts/parse_quran.py --docx "quran/surah_18.docx" --surah-number 18 --output assets/db/app.db --append
 
-# 4. Bump DB_VERSION and restart
+# 4. Repair and verify (see "Data Integrity")
+python3 scripts/fix_data.py
+python3 scripts/verify_db.py
+
+# 5. Bump DB_VERSION and restart
 pnpm start:clear
 ```
 
@@ -158,7 +162,20 @@ Place `.docx` files in the `quran/` directory (gitignored — large files) and r
 ```bash
 python3 scripts/parse_quran.py --docx "quran/surah_N.docx" --surah-number N --output assets/db/app.db --append
 python3 scripts/import_dari.py  # batch import all Dari translations
+python3 scripts/fix_data.py
+python3 scripts/verify_db.py
 ```
+
+## Data Integrity
+
+The `.docx` sources contain formatting the importers do not handle, and some Arabic in them is wrong. Every import must be followed by the repair and the check:
+
+- `scripts/fix_data.py` replaces all Arabic with the verified Tanzil text in `scripts/data/quran-arabic.txt`, applies the reviewed corrections in `scripts/data/translation-fixes.json`, removes verse 0 rows, and recomputes juz numbers and verse counts. It backs up to `.db-backups/` first and supports `--dry-run`.
+- `scripts/verify_db.py` fails if any verse is missing or extra, any Arabic differs from the reference, any translation is empty or contains Arabic or verse markers, juz data is wrong, or user tables are not empty.
+
+Never edit Arabic by hand. Fix a translation by adding an entry to `translation-fixes.json`, so the fix survives re-imports.
+
+The Arabic text is from the [Tanzil Project](https://tanzil.net) under CC BY 3.0. The app must credit Tanzil with a link before release.
 
 ## Key Config Files
 
