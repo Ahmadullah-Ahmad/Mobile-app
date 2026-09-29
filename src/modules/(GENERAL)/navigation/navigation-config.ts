@@ -3,7 +3,7 @@ import type { TranslationKey } from "@/i18n/messages";
 import { ROUTES } from "@/lib/routes";
 import type { IconName } from "@/UI/icon";
 
-export type ScreenTab = "read" | "surahs" | "juz";
+export type ScreenTab = "home" | "surahs" | "juz";
 
 type TabItem = { icon: IconName; labelKey: TranslationKey } & (
   | { kind: "screen"; key: ScreenTab; path: string }
@@ -11,7 +11,7 @@ type TabItem = { icon: IconName; labelKey: TranslationKey } & (
 );
 
 export const TAB_ITEMS: TabItem[] = [
-  { kind: "screen", key: "read", path: ROUTES.home, icon: "book", labelKey: "readTab" },
+  { kind: "screen", key: "home", path: ROUTES.home, icon: "home", labelKey: "homeTab" },
   { kind: "screen", key: "surahs", path: ROUTES.surahs, icon: "list", labelKey: "surahsTitle" },
   { kind: "screen", key: "juz", path: ROUTES.juzList, icon: "juz", labelKey: "juzListTitle" },
   { kind: "sheet", key: "bookmarks", icon: "bookmark", labelKey: "bookmarks" },
@@ -21,5 +21,5 @@ export const TAB_ITEMS: TabItem[] = [
 export function screenTabFor(pathname: string): ScreenTab {
   if (pathname === ROUTES.surahs) return "surahs";
   if (pathname === ROUTES.juzList) return "juz";
-  return "read";
+  return "home";
 }

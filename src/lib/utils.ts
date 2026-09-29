@@ -13,7 +13,7 @@ export function chunk<T>(arr: T[], size: number): T[][] {
 
 const EXTENDED_ARABIC_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
 
-export function toArabicNumeral(n: number): string {
+export function toArabicNumeral(n: number | string): string {
   return String(n).replace(/\d/g, (d) => EXTENDED_ARABIC_DIGITS[Number(d)]);
 }
 

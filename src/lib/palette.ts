@@ -32,6 +32,12 @@ const light = {
   heroTrack: "rgba(10, 60, 35, 0.14)",
   heroBlob: "rgba(10, 60, 35, 0.08)",
 
+  prayerBg: BRAND.green,
+  prayerInk: BRAND.ivory,
+  prayerInk2: "rgba(246, 243, 233, 0.72)",
+  prayerAccent: BRAND.gold,
+  prayerChip: "rgba(246, 243, 233, 0.14)",
+
   chipOff: "rgba(19, 36, 26, 0.65)",
   tabOff: "rgba(19, 36, 26, 0.45)",
   juzBadge: BRAND.ivory,
@@ -73,6 +79,12 @@ const dark: Palette = {
   heroInk2: "#e0bf52",
   heroTrack: "rgba(246, 243, 233, 0.16)",
   heroBlob: "rgba(212, 175, 55, 0.12)",
+
+  prayerBg: "rgba(212, 175, 55, 0.14)",
+  prayerInk: BRAND.ivory,
+  prayerInk2: "rgba(246, 243, 233, 0.72)",
+  prayerAccent: "#e6c65c",
+  prayerChip: "rgba(246, 243, 233, 0.12)",
 
   chipOff: "rgba(246, 243, 233, 0.72)",
   tabOff: "rgba(246, 243, 233, 0.55)",

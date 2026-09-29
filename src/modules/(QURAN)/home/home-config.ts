@@ -1,16 +1,17 @@
-import { TOTAL_JUZ } from "@/lib/constants";
+import type { TranslationKey } from "@/i18n/messages";
+import { ROUTES } from "@/lib/routes";
+import type { IconName } from "@/UI/icon";
 
-export const HOME_SURAH_COUNT = 3;
-export const HOME_JUZ_COUNT = 5;
+export const HOME_TOOLS: { route: string; icon: IconName; labelKey: TranslationKey }[] = [
+  { route: ROUTES.prayer, icon: "clock", labelKey: "prayerTimes" },
+  { route: ROUTES.qibla, icon: "compass", labelKey: "qibla" },
+  { route: ROUTES.tasbih, icon: "beads", labelKey: "tasbih" },
+  { route: ROUTES.zakat, icon: "coins", labelKey: "zakat" },
+];
 
 export interface ContinueReading {
   surah: { id: number; number: number; name_arabic: string; total_verses: number } | null;
   verseNumber: number;
   juzNumber: number;
   route: string;
-}
-
-export function juzWindow(currentJuz: number): number[] {
-  const start = Math.max(1, Math.min(currentJuz, TOTAL_JUZ - HOME_JUZ_COUNT + 1));
-  return Array.from({ length: HOME_JUZ_COUNT }, (_, i) => start + i);
 }

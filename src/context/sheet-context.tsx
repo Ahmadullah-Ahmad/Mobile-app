@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 
-export type SheetName = "bookmarks" | "settings";
+export type SheetName = "bookmarks" | "settings" | "prayerCity";
 
 interface SheetContextValue {
   sheet: SheetName | null;

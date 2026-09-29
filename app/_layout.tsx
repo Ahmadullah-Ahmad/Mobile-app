@@ -29,11 +29,7 @@ function ThemedStack() {
 
   return (
     <View className="flex-1">
-      <StatusBar
-        style={theme === "dark" ? "light" : "dark"}
-        translucent
-        backgroundColor="transparent"
-      />
+      <StatusBar style={theme === "dark" ? "light" : "dark"} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: ground } }} />
     </View>
   );

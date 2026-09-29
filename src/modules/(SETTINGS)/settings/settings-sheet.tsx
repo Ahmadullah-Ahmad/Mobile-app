@@ -3,7 +3,9 @@ import { ScrollView } from "react-native";
 import { useSharedUiLang } from "@/context/ui-lang-context";
 import DrawerPanel, { useDrawerBottomSpace } from "@/UI/drawer-panel";
 
+import SettingsAbout from "./settings-about";
 import SettingsFontSize from "./settings-font-size";
+import SettingsHijriAdjust from "./settings-hijri-adjust";
 import SettingsLanguageOptions from "./settings-language-options";
 import SettingsSection from "./settings-section";
 import SettingsThemeToggle from "./settings-theme-toggle";
@@ -29,8 +31,14 @@ export default function SettingsSheet({ open, onClose }: SettingsSheetProps) {
         <SettingsSection title={t("theme")} subtitle={t("themeSub")}>
           <SettingsThemeToggle />
         </SettingsSection>
-        <SettingsSection title={t("fontSize")} subtitle={t("fontSizeSub")} style={{ marginBottom: 0 }}>
+        <SettingsSection title={t("fontSize")} subtitle={t("fontSizeSub")}>
           <SettingsFontSize />
+        </SettingsSection>
+        <SettingsSection title={t("hijriAdjust")} subtitle={t("hijriAdjustSub")}>
+          <SettingsHijriAdjust />
+        </SettingsSection>
+        <SettingsSection title={t("about")} subtitle={t("aboutSub")} style={{ marginBottom: 0 }}>
+          <SettingsAbout />
         </SettingsSection>
       </ScrollView>
     </DrawerPanel>

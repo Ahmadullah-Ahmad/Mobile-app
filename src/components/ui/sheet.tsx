@@ -319,7 +319,7 @@ const Sheet = React.forwardRef<View, SheetProps>(
           >
             {closeOnBackdropPress && (
               <TouchableWithoutFeedback onPress={handleBackdropPress}>
-                <View style={StyleSheet.absoluteFillObject} />
+                <View style={StyleSheet.absoluteFill} />
               </TouchableWithoutFeedback>
             )}
           </Animated.View>
@@ -410,7 +410,7 @@ const Sheet = React.forwardRef<View, SheetProps>(
 
 const styles = StyleSheet.create({
   backdrop: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(0, 0, 0, 0.4)",
   },
   sheetContainer: {
