@@ -6,6 +6,8 @@ import { UI_LANG_LABELS, UI_LANGS } from "@/i18n/config";
 import AppText from "@/UI/app-text";
 import Icon from "@/UI/icon";
 
+const ROW_HEIGHT = 50;
+
 export default function SettingsLanguageOptions() {
   const palette = usePalette();
   const { lang, setLang } = useSharedUiLang();
@@ -27,8 +29,8 @@ export default function SettingsLanguageOptions() {
               backgroundColor: selected ? palette.accentSoft : "transparent",
               borderWidth: 1,
               borderColor: selected ? palette.accentBorder : palette.optionBorder,
-              borderRadius: 999,
-              paddingVertical: 12,
+              height: ROW_HEIGHT,
+              borderRadius: ROW_HEIGHT / 2,
               paddingHorizontal: 18,
             }}
           >
@@ -43,7 +45,8 @@ export default function SettingsLanguageOptions() {
               style={{
                 width: 20,
                 height: 20,
-                borderRadius: 10,
+                borderRadius: 999,
+                overflow: "hidden",
                 backgroundColor: selected ? palette.accent : "transparent",
                 alignItems: "center",
                 justifyContent: "center",

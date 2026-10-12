@@ -1,11 +1,12 @@
 import Constants from "expo-constants";
+import { Fragment } from "react";
 import { Linking, Pressable, View } from "react-native";
 
 import { useSharedUiLang } from "@/context/ui-lang-context";
 import { usePalette } from "@/hooks/use-palette";
 import AppText from "@/UI/app-text";
 
-import { ABOUT_CREDITS, CONTACT_EMAIL } from "./settings-config";
+import { ABOUT_CREDITS, CONTACT_PHONE } from "./settings-config";
 
 function AboutRow({ label, value, onPress }: { label: string; value: string; onPress?: () => void }) {
   const palette = usePalette();
@@ -50,16 +51,19 @@ export default function SettingsAbout() {
   return (
     <View style={{ backgroundColor: palette.panel, borderRadius: 30, paddingHorizontal: 18, paddingVertical: 6 }}>
       {ABOUT_CREDITS.map((credit) => (
-        <AboutRow
-          key={credit.labelKey}
-          label={t(credit.labelKey)}
-          value={lang === "english" ? credit.nameEn : credit.name}
-        />
+        <Fragment key={credit.labelKey}>
+          <AboutRow label={t(credit.labelKey)} value={lang === "english" ? credit.nameEn : credit.name} />
+          <AboutRow
+            label={t("aboutEmail")}
+            value={credit.email}
+            onPress={() => Linking.openURL(`mailto:${credit.email}`)}
+          />
+        </Fragment>
       ))}
       <AboutRow
-        label={t("aboutEmail")}
-        value={CONTACT_EMAIL}
-        onPress={() => Linking.openURL(`mailto:${CONTACT_EMAIL}`)}
+        label={t("aboutPhone")}
+        value={`\u2066${CONTACT_PHONE}\u2069`}
+        onPress={() => Linking.openURL(`tel:${CONTACT_PHONE}`)}
       />
       <View style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 12 }}>
         <AppText size={13} color={palette.ink2}>

@@ -11,6 +11,7 @@ import { useTheme } from "@/context/theme-context";
 import { resetDatabaseIfOutdated } from "@/db/db-version";
 import { FONT_ASSETS } from "@/lib/fonts";
 import { PALETTE } from "@/lib/palette";
+import SplashOverlay from "@/UI/splash-overlay";
 import "./global.css";
 
 // Allow per-component RTL on Android (writingDirection style).
@@ -49,8 +50,10 @@ export default function RootLayout() {
   if (!fontsLoaded || !dbChecked) return null;
 
   return (
-    <AppProviders>
-      <ThemedStack />
-    </AppProviders>
+    <SplashOverlay>
+      <AppProviders>
+        <ThemedStack />
+      </AppProviders>
+    </SplashOverlay>
   );
 }

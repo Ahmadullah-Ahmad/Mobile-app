@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSharedUiLang } from "@/context/ui-lang-context";
 import { useDirection } from "@/hooks/use-direction";
 import { usePalette } from "@/hooks/use-palette";
+import { APP_TITLE } from "@/lib/constants";
 import { navigate, ROUTES } from "@/lib/routes";
 import ScreenHeading from "@/UI/screen-heading";
 import ScreenTransition from "@/UI/screen-transition";
@@ -35,7 +36,12 @@ export default function JuzList() {
       }}
     >
       <View style={{ paddingHorizontal: 22, paddingBottom: 14 }}>
-        <ScreenHeading title={t("juzListTitle")} subtitle={t("juzListSubtitle")} />
+        <ScreenHeading
+          title={APP_TITLE}
+          subtitle={t("juzListSubtitle")}
+          titleVariant="uiMedium"
+          titleLineHeight={1.6}
+        />
         <TranslationTabs style={{ marginTop: 10 }} />
       </View>
 

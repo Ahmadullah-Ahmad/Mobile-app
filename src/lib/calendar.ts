@@ -28,13 +28,20 @@ const SOLAR_MONTHS: Record<UiLang, string[]> = {
   english: ["Hamal", "Sawr", "Jawza", "Saratan", "Asad", "Sunbula", "Mizan", "Aqrab", "Qaws", "Jadi", "Dalw", "Hut"],
 };
 
+const GREGORIAN_MONTHS: Record<UiLang, string[]> = {
+  pashto: ["جنوري", "فبروري", "مارچ", "اپرېل", "مۍ", "جون", "جولای", "اګست", "سپتمبر", "اکتوبر", "نومبر", "ډسمبر"],
+  dari: ["جنوری", "فبروری", "مارچ", "اپریل", "می", "جون", "جولای", "آگست", "سپتمبر", "اکتوبر", "نومبر", "دسمبر"],
+  english: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+};
+
 const WEEKDAYS: Record<UiLang, string[]> = {
   pashto: ["یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه", "شنبه"],
   dari: ["یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه", "شنبه"],
   english: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
 };
 
-const ERA: Record<"hijri" | "solar", Record<UiLang, string>> = {
+const ERA: Record<"hijri" | "solar" | "gregorian", Record<UiLang, string>> = {
+  gregorian: { pashto: "م", dari: "م", english: "" },
   hijri: { pashto: "هـ.ق", dari: "هـ.ق", english: "AH" },
   solar: { pashto: "هـ.ش", dari: "هـ.ش", english: "SH" },
 };
@@ -98,4 +105,11 @@ export function formatSolarDate(date: Date, lang: UiLang, formatNumber: FormatNu
   const weekday = WEEKDAYS[lang][date.getDay()];
   const separator = lang === "english" ? ", " : "، ";
   return `${weekday}${separator}${formatNumber(day)} ${SOLAR_MONTHS[lang][month - 1]} ${formatNumber(year)} ${ERA.solar[lang]}`;
+}
+
+export function formatGregorianDate(date: Date, lang: UiLang, formatNumber: FormatNumber): string {
+  const weekday = WEEKDAYS[lang][date.getDay()];
+  const separator = lang === "english" ? ", " : "، ";
+  const text = `${weekday}${separator}${formatNumber(date.getDate())} ${GREGORIAN_MONTHS[lang][date.getMonth()]} ${formatNumber(date.getFullYear())} ${ERA.gregorian[lang]}`;
+  return text.trimEnd();
 }

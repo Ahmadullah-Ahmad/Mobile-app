@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "القرآن الكريم",
+    "name": "د قرآن کریم پښتو او دري ترجمه",
     "slug": "quran-with-dari-and-pashto-translation",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#0a3c23",
+        "backgroundColor": "#1a1a1a",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -31,12 +31,13 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "image": "./assets/images/splash-blank.png",
+          "imageWidth": 8,
           "resizeMode": "contain",
-          "backgroundColor": "#f6f3e9",
+          "backgroundColor": "#1a1a1a",
           "dark": {
-            "backgroundColor": "#0a3c23"
+            "image": "./assets/images/splash-blank.png",
+            "backgroundColor": "#1a1a1a"
           }
         }
       ],
@@ -53,7 +54,7 @@
         "expo-notifications",
         {
           "icon": "./assets/images/android-icon-monochrome.png",
-          "color": "#0a3c23"
+          "color": "#c0c4ca"
         }
       ],
       [

@@ -1,4 +1,3 @@
-import { useColorScheme as useNativewindColorScheme } from 'nativewind';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useColorScheme as useNativeColorScheme } from 'react-native';
 import { loadSetting, peekSetting, saveSetting } from '@/lib/settings';
@@ -46,12 +45,6 @@ export function ThemeProvider({
         saveSetting(THEME_SETTING_KEY, next);
     }, []);
 
-    const { colorScheme, setColorScheme } = useNativewindColorScheme();
-
-    useEffect(() => {
-        if (colorScheme !== theme) setColorScheme(theme);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [theme, colorScheme]);
 
     const activeTheme = themes[theme];
 

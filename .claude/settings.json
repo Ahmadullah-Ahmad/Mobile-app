@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(git -C . ls-files assets/images)",
+      "Bash(python3 -c \"from PIL import Image;print\\(Image.open\\('assets/images/splash-icon.png'\\).size\\)\")",
+      "Bash(lsof -iTCP:8081 -sTCP:LISTEN)",
+      "Bash(adb reverse *)",
+      "Bash(adb logcat *)",
+      "Bash(adb shell *)",
+      "Bash(adb exec-out *)",
+      "Bash(mkdir -p android/app/src/main/res/drawable-nodpi)",
+      "Bash(cp assets/images/splash.png android/app/src/main/res/drawable-nodpi/splash_poster.png)",
+      "Bash(xcode-select -p)",
+      "Read(//Applications/**)",
+      "Bash(swift --version)",
+      "Bash(node -p \"require\\('/Users/ahmadullah/Desktop/app/node_modules/@expo-google-fonts/noto-naskh-arabic/package.json'\\).version\")",
+      "Bash(sed -i '' 's/let rows: \\\\[\\(String, NSFont\\)\\\\] = .*/let a = CommandLine.arguments; let rows: [\\(String, NSFont\\)] = [\\(\"naskh-installed\", load\\(a[2]\\)\\), \\(\"naskh-0.4.5\", load\\(a[3]\\)\\), \\(\"vazirmatn\", load\\(a[4]\\)\\), \\(\"noto-sans\", load\\(a[5]\\)\\)]/' /private/tmp/claude-501/-Users-ahmadullah-Desktop-app/c5ff36ed-36f4-432a-9730-7e0b8a992559/scratchpad/render4.swift)",
+      "Bash(swift /private/tmp/claude-501/-Users-ahmadullah-Desktop-app/c5ff36ed-36f4-432a-9730-7e0b8a992559/scratchpad/render4.swift /private/tmp/claude-501/-Users-ahmadullah-Desktop-app/c5ff36ed-36f4-432a-9730-7e0b8a992559/scratchpad/tk2.png /Users/ahmadullah/Desktop/app/node_modules/@expo-google-fonts/noto-naskh-arabic/400Regular/NotoNaskhArabic_400Regular.ttf /private/tmp/claude-501/-Users-ahmadullah-Desktop-app/c5ff36ed-36f4-432a-9730-7e0b8a992559/scratchpad/fontpkgs/x-expo-google-fonts-noto-naskh-arabic-0.4.5.tgz/package/400Regular/NotoNaskhArabic_400Regular.ttf /private/tmp/claude-501/-Users-ahmadullah-Desktop-app/c5ff36ed-36f4-432a-9730-7e0b8a992559/scratchpad/fontpkgs/x-expo-google-fonts-vazirmatn-0.4.1.tgz/package/400Regular/Vazirmatn_400Regular.ttf /private/tmp/claude-501/-Users-ahmadullah-Desktop-app/c5ff36ed-36f4-432a-9730-7e0b8a992559/scratchpad/fontpkgs/x-expo-google-fonts-noto-sans-arabic-0.4.3.tgz/package/400Regular/NotoSansArabic_400Regular.ttf)",
+      "Bash(perl -e 'select\\(undef,undef,undef,1\\)')",
+      "Bash(ffmpeg -loglevel error -y -i /private/tmp/claude-501/-Users-ahmadullah-Desktop-app/c5ff36ed-36f4-432a-9730-7e0b8a992559/scratchpad/ios2.png -vf crop=1206:1300:0:1000,scale=600:-1 /private/tmp/claude-501/-Users-ahmadullah-Desktop-app/c5ff36ed-36f4-432a-9730-7e0b8a992559/scratchpad/ios2z.png)"
+    ]
+  }
+}

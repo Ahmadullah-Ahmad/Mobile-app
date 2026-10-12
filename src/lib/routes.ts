@@ -6,7 +6,8 @@ export const ROUTES = {
   juzList: "/quran/para",
   surah: (surahNumber: number, verse?: number) =>
     verse ? `/quran/${surahNumber}?verse=${verse}` : `/quran/${surahNumber}`,
-  juz: (juzNumber: number) => `/quran/juz/${juzNumber}`,
+  juz: (juzNumber: number, atEnd?: boolean) =>
+    atEnd ? `/quran/juz/${juzNumber}?end=1` : `/quran/juz/${juzNumber}`,
   prayer: "/prayer",
   qibla: "/qibla",
   tasbih: "/tasbih",
@@ -16,4 +17,8 @@ export const ROUTES = {
 // Typed routes only accept literal paths; runtime-built paths need this one cast.
 export function navigate(path: string) {
   (router.navigate as (href: string) => void)(path);
+}
+
+export function replace(path: string) {
+  (router.replace as (href: string) => void)(path);
 }

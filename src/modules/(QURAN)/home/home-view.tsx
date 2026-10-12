@@ -5,11 +5,12 @@ import { useSharedUiLang } from "@/context/ui-lang-context";
 import { useDirection } from "@/hooks/use-direction";
 import { usePalette } from "@/hooks/use-palette";
 import { useTranslationLang } from "@/hooks/use-translation-lang";
-import { QURAN_TITLE, TRANSLATION_OPTIONS } from "@/lib/constants";
+import { APP_TITLE, TRANSLATION_OPTIONS } from "@/lib/constants";
 import PrayerHeaderCard from "@/modules/(PRAYER)/prayer-times/prayer-header-card";
 import AppText from "@/UI/app-text";
-import SegmentedPills from "@/UI/segmented-pills";
+import DropdownPill from "@/UI/dropdown-pill";
 
+import HomeClock from "./home-clock";
 import HomeContinueCard from "./home-continue-card";
 import { useContinueReading } from "./home-hooks";
 import HomeTools from "./home-tools";
@@ -40,16 +41,11 @@ export default function HomeView() {
         showsVerticalScrollIndicator={false}
       >
         <View style={{ direction: writingDirection }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 12,
-              marginBottom: 20,
-            }}
-          >
-            <SegmentedPills
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 18 }}>
+            <AppText variant="uiMedium" size={20} lineHeight={1.5} align="start" style={{ flex: 1 }}>
+              {APP_TITLE}
+            </AppText>
+            <DropdownPill
               options={TRANSLATION_OPTIONS.map((option) => ({
                 value: option.value,
                 label: t(option.labelKey),
@@ -57,11 +53,9 @@ export default function HomeView() {
               value={lang}
               onChange={setLang}
             />
-            <AppText variant="quran" size={23} lineHeight={2}>
-              {QURAN_TITLE}
-            </AppText>
           </View>
 
+          <HomeClock />
           <PrayerHeaderCard />
           <HomeTools />
 

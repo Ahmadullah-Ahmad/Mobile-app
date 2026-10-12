@@ -15,6 +15,7 @@
     "@expo-google-fonts/caprasimo": "^0.4.0",
     "@expo-google-fonts/figtree": "^0.4.1",
     "@expo-google-fonts/noto-naskh-arabic": "^0.4.5",
+    "@expo-google-fonts/vazirmatn": "^0.4.1",
     "@expo/vector-icons": "^15.1.1",
     "@react-navigation/elements": "^2.9.43",
     "@react-navigation/native": "^7.4.1",

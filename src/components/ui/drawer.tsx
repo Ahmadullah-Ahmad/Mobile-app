@@ -4,7 +4,7 @@ import {
   Animated,
   Dimensions,
   Easing,
-  KeyboardAvoidingView,
+  Keyboard,
   Modal,
   PanResponder,
   Platform,
@@ -86,6 +86,8 @@ interface DrawerProps {
   snapPoints?: number[];
   contentClassName?: string;
   avoidKeyboard?: boolean;
+  // Height (fraction of the screen) the drawer takes while the keyboard is open.
+  keyboardHeightRatio?: number;
   closeOnBackdropPress?: boolean;
   disableBackHandler?: boolean;
 }
@@ -124,6 +126,7 @@ const Drawer = React.forwardRef<View, DrawerProps>(
       snapPoints: providedSnapPoints,
       contentClassName,
       avoidKeyboard = true,
+      keyboardHeightRatio = 0.9,
       closeOnBackdropPress = true,
       disableBackHandler = false,
     },
@@ -424,6 +427,43 @@ const Drawer = React.forwardRef<View, DrawerProps>(
       [animateClose, animateToSnapPoint, snapPoints, translateY]
     );
 
+    // The sheet is anchored to the top, so a keyboard that shrinks the window can't push it up.
+    // While the keyboard is open it moves (in step with the keyboard) to fill keyboardHeightRatio of the
+    // screen, and its content gets bottom padding so everything stays reachable above the keyboard.
+    const [keyboardPadding, setKeyboardPadding] = React.useState(0);
+
+    React.useEffect(() => {
+      if (!isVisible || !avoidKeyboard) return;
+      const ios = Platform.OS === "ios";
+      const keyboardTop = SCREEN_HEIGHT * (1 - keyboardHeightRatio);
+
+      const move = (toValue: number, duration: number) => {
+        if (isClosing.current) return;
+        translateY.stopAnimation();
+        isAnimating.current = false;
+        Animated.timing(translateY, {
+          toValue,
+          duration: duration || 250,
+          easing: Easing.bezier(0.17, 0.59, 0.4, 0.77),
+          useNativeDriver: true,
+        }).start();
+      };
+
+      const show = Keyboard.addListener(ios ? "keyboardWillShow" : "keyboardDidShow", (e) => {
+        setKeyboardPadding(e.endCoordinates.height + keyboardTop);
+        move(keyboardTop, e.duration);
+      });
+      const hide = Keyboard.addListener(ios ? "keyboardWillHide" : "keyboardDidHide", (e) => {
+        setKeyboardPadding(0);
+        move(snapPointsPixels[activeSnapIndex.current], e.duration);
+      });
+      return () => {
+        show.remove();
+        hide.remove();
+        setKeyboardPadding(0);
+      };
+    }, [isVisible, avoidKeyboard, keyboardHeightRatio, snapPointsPixels, translateY]);
+
     const renderContent = React.useCallback(
       () => (
         <View className="flex-1">
@@ -440,7 +480,7 @@ const Drawer = React.forwardRef<View, DrawerProps>(
           <Animated.View
             style={[styles.drawerContainer, { transform: [{ translateY }] }]}
             className={cn(
-              "absolute bottom-0 left-0 right-0 bg-popover rounded-t-xl overflow-hidden",
+              "absolute top-0 left-0 right-0 bg-popover rounded-t-xl overflow-hidden",
               Platform.OS === "ios" ? "ios:shadow-xl" : "android:elevation-24",
               contentClassName
             )}
@@ -460,7 +500,7 @@ const Drawer = React.forwardRef<View, DrawerProps>(
               )}
             </View>
 
-            <SafeAreaView className="flex-1" edges={["bottom"]}>
+            <SafeAreaView className="flex-1" edges={["bottom"]} style={{ paddingBottom: keyboardPadding }}>
               <View ref={ref} className="flex-1">
                 {children}
               </View>
@@ -470,6 +510,7 @@ const Drawer = React.forwardRef<View, DrawerProps>(
       ),
       [
         animateClose,
+        keyboardPadding,
         backdropOpacity,
         closeOnBackdropPress,
         contentClassName,
@@ -492,17 +533,7 @@ const Drawer = React.forwardRef<View, DrawerProps>(
           statusBarTranslucent
           onRequestClose={disableBackHandler ? undefined : animateClose}
         >
-          {avoidKeyboard && Platform.OS === "ios" ? (
-            <KeyboardAvoidingView
-              behavior="padding"
-              style={{ flex: 1 }}
-              keyboardVerticalOffset={10}
-            >
-              {renderContent()}
-            </KeyboardAvoidingView>
-          ) : (
-            renderContent()
-          )}
+          {renderContent()}
         </Modal>
       </DrawerContext.Provider>
     );

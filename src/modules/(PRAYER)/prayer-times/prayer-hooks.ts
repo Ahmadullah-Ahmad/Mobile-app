@@ -88,8 +88,14 @@ function distanceKm(a: LatLng, b: LatLng): number {
 }
 
 async function currentCoords(): Promise<LatLng> {
-  const { coords } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-  return { lat: coords.latitude, lng: coords.longitude };
+  let position: Location.LocationObject | null;
+  try {
+    position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+  } catch (e) {
+    position = await Location.getLastKnownPositionAsync();
+    if (!position) throw e;
+  }
+  return { lat: position.coords.latitude, lng: position.coords.longitude };
 }
 
 export function useLocateMe() {

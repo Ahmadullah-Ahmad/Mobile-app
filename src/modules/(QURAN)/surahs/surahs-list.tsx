@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSharedUiLang } from "@/context/ui-lang-context";
 import { useDirection } from "@/hooks/use-direction";
 import { usePalette } from "@/hooks/use-palette";
-import { QURAN_TITLE } from "@/lib/constants";
+import { APP_TITLE } from "@/lib/constants";
 import { navigate, ROUTES } from "@/lib/routes";
 import AppText from "@/UI/app-text";
 import ScreenHeading from "@/UI/screen-heading";
@@ -40,10 +40,10 @@ export default function SurahsList() {
     >
       <View style={{ paddingHorizontal: 22, paddingBottom: 14 }}>
         <ScreenHeading
-          title={QURAN_TITLE}
+          title={APP_TITLE}
           subtitle={t("surahListSubtitle")}
-          titleVariant="quran"
-          titleLineHeight={1.9}
+          titleVariant="uiMedium"
+          titleLineHeight={1.6}
         />
         <TranslationTabs style={{ marginTop: 10 }} />
         <SearchInput

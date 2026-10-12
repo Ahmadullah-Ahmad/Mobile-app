@@ -2,7 +2,7 @@ import type { TranslationKey } from "@/i18n/messages";
 
 import type { TranslationLang } from "./common-types";
 
-export const QURAN_TITLE = "القرآن الكريم";
+export const APP_TITLE = "د قرآن کریم پښتو او دري ترجمه";
 export const SURAH_PREFIX = "سورة";
 export const BISMILLAH_TEXT = "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ";
 

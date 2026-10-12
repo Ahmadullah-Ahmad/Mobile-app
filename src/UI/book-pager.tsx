@@ -17,6 +17,11 @@ interface BookPagerProps<T> {
   initialPage: number;
   onPageChange: (index: number, page: T[]) => void;
   renderPage: (page: T[], index: number) => ReactNode;
+  // Extra slots before the first / after the last page; swiping onto one calls its callback (e.g. open the previous / next juz).
+  startSlot?: ReactNode;
+  onStartReached?: () => void;
+  endSlot?: ReactNode;
+  onEndReached?: () => void;
 }
 
 export default function BookPager<T>({
@@ -24,10 +29,16 @@ export default function BookPager<T>({
   initialPage,
   onPageChange,
   renderPage,
+  startSlot,
+  onStartReached,
+  endSlot,
+  onEndReached,
 }: BookPagerProps<T>) {
   const pagerRef = useRef<ScrollView>(null);
   const currentPageRef = useRef(initialPage);
-  const positioned = useRef(initialPage === 0);
+  const offset = startSlot ? 1 : 0;
+  const initialX = SCREEN_W * (initialPage + offset);
+  const positioned = useRef(initialX === 0);
   const [currentPage, setCurrentPage] = useState(initialPage);
 
   useEffect(() => {
@@ -39,12 +50,20 @@ export default function BookPager<T>({
   const onContentSizeChange = () => {
     if (positioned.current) return;
     positioned.current = true;
-    pagerRef.current?.scrollTo({ x: SCREEN_W * initialPage, animated: false });
+    pagerRef.current?.scrollTo({ x: initialX, animated: false });
   };
 
   const onMomentumScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const index = Math.round(e.nativeEvent.contentOffset.x / SCREEN_W);
+    const index = Math.round(e.nativeEvent.contentOffset.x / SCREEN_W) - offset;
     if (index === currentPageRef.current) return;
+    if (startSlot && index === -1) {
+      onStartReached?.();
+      return;
+    }
+    if (endSlot && index === pages.length) {
+      onEndReached?.();
+      return;
+    }
     currentPageRef.current = index;
     setCurrentPage(index);
     const page = pages[index];
@@ -57,11 +76,16 @@ export default function BookPager<T>({
       horizontal
       pagingEnabled
       showsHorizontalScrollIndicator={false}
-      contentOffset={{ x: SCREEN_W * initialPage, y: 0 }}
+      contentOffset={{ x: initialX, y: 0 }}
       onContentSizeChange={onContentSizeChange}
       onMomentumScrollEnd={onMomentumScrollEnd}
       style={styles.pager}
     >
+      {startSlot ? (
+        <View style={styles.slot} className="bg-transparent">
+          {startSlot}
+        </View>
+      ) : null}
       {pages.map((page, index) => (
         <View key={index} style={styles.slot} className="bg-transparent">
           {Math.abs(index - currentPage) <= RENDER_WINDOW
@@ -69,6 +93,11 @@ export default function BookPager<T>({
             : null}
         </View>
       ))}
+      {endSlot ? (
+        <View style={styles.slot} className="bg-transparent">
+          {endSlot}
+        </View>
+      ) : null}
     </ScrollView>
   );
 }

@@ -8,12 +8,21 @@ export const THEME_OPTIONS: { value: ThemeName; icon: IconName; labelKey: Transl
   { value: "dark", icon: "moon", labelKey: "dark" },
 ];
 
-export const ABOUT_CREDITS: { labelKey: TranslationKey; name: string; nameEn: string }[] = [
-  { labelKey: "aboutDariTranslation", name: "امین الدین سعیدي (سعید الافغاني)", nameEn: "Aminuddin Saeedi (Saeed al-Afghani)" },
-  { labelKey: "aboutPashtoTranslation", name: "حامدالله ستون", nameEn: "Hamidullah Stoon" },
-  { labelKey: "aboutDesign", name: "احمدالله احمدي", nameEn: "Ahmadullah Ahmadi" },
+export const ABOUT_CREDITS: { labelKey: TranslationKey; name: string; nameEn: string; email: string }[] = [
+  {
+    labelKey: "aboutDariTranslation",
+    name: "امین الدین «سعیدي – سعید افغاني»‏",
+    nameEn: "Aminuddin «Saidi – Said Afghani»",
+    email: "saidafghani@hotmail.com",
+  },
+  {
+    labelKey: "aboutPashtoTranslation",
+    name: "حامدالله ستون",
+    nameEn: "Hamidullah Stoone",
+    email: "stoone.af@outlook.com",
+  },
 ];
 
-export const CONTACT_EMAIL = "stoone.af@outlook.com";
+export const CONTACT_PHONE = "+93729343424";
 
 export const PREVIEW_TRANSLATION = "د اللهﷻ په نوم چې رحمت یې بې حده او رحم یې تلپاتې دی";

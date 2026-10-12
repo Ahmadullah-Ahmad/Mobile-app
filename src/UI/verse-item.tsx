@@ -88,7 +88,7 @@ function VerseItem({
       </Pressable>
 
       <Pressable onLongPress={onLongPress} style={{ flex: 1, minWidth: 0 }}>
-        <AppText variant="quran" size={fontSize + 6} lineHeight={2} align="right">
+        <AppText variant="quran" size={fontSize + 6} lineHeight={2} color={palette.verseInk} align="right">
           {verse.arabic}{" "}
           <Text style={{ color: palette.gold }}>
             ﴿{toArabicNumeral(verse.verse_number)}﴾
@@ -99,7 +99,7 @@ function VerseItem({
             variant="naskh"
             size={fontSize - 2}
             lineHeight={1.8}
-            color={palette.ink2}
+            color={palette.verseInk}
             align="right"
             style={{ marginTop: 8, writingDirection: "rtl" }}
           >
