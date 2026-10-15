@@ -3,6 +3,7 @@ import { SQLiteProvider, useSQLiteContext } from "expo-sqlite";
 import { Suspense, useEffect, useState, type ReactNode } from "react";
 
 import { getDb } from "@/db/client";
+import { JUZ_BOUNDARY_FIX_SQL } from "@/db/juz-boundaries";
 import { seedDatabase } from "@/db/seed";
 
 // The bundled asset already carries all surahs and juz, so this check resolves
@@ -57,6 +58,7 @@ export function DatabaseProvider({ children }: { children: ReactNode }) {
         onInit={async (db) => {
           await db.execAsync("PRAGMA journal_mode = WAL;");
           await db.execAsync("PRAGMA foreign_keys = ON;");
+          await db.execAsync(JUZ_BOUNDARY_FIX_SQL);
         }}
       >
         <DrizzleStudio />
