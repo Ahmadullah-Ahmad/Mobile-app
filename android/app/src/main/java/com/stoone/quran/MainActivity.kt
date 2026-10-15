@@ -1,4 +1,4 @@
-package com.anonymous.app
+package com.stoone.quran
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

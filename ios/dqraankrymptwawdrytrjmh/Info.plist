@@ -28,7 +28,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>app</string>
-				<string>com.anonymous.app</string>
+				<string>com.stoone.quran</string>
 			</array>
 		</dict>
 	</array>
